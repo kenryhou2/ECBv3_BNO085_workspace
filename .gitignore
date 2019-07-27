@@ -1,0 +1,23 @@
+# PSOC
+# Temporary files
+Debug/
+codegentemp/
+Generated_Source/
+Backup/
+Export/
+
+*.log
+*.ini
+
+*.cyfit
+*.rpt
+*.html
+*.svd
+
+# Workspace local file
+*.Lu Li
+*.LUKE
+
+
+
+
