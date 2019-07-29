@@ -68,7 +68,7 @@
 #define PACKED_STRUCT __packed struct
 #endif
 
-#define ADVERT_TIMEOUT_US (2000000)//(200000) //2secs
+#define ADVERT_TIMEOUT_US 2000000//(200000) //2secs
 
 // Command and Subcommand values
 #define SH2_CMD_ERRORS                 1
@@ -1709,8 +1709,8 @@ int sh2_open(sh2_Hal_t *pHal,
 
     // Wait for reset notifications to arrive.
     // The client can't talk to the sensor hub until that happens.
-    uint32_t start_us = pSh2->pHal->getTimeUs(pSh2->pHal);
-    uint32_t now_us = start_us;
+    volatile uint32_t start_us = pSh2->pHal->getTimeUs(pSh2->pHal);
+    volatile uint32_t now_us = start_us;
     
     char str[64];
     volatile int count = 0;
@@ -1725,8 +1725,8 @@ int sh2_open(sh2_Hal_t *pHal,
         shtp_service(pSh2->pShtp);                                              
         now_us = pSh2->pHal->getTimeUs(pSh2->pHal);
     }
-    
     // No errors.
+    CyDelayUs(1);
     return SH2_OK;
 }
 

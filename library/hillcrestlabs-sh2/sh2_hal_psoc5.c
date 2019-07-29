@@ -68,13 +68,14 @@ extern int printOut(char str[64]);
 */
 CY_ISR(TIMER_ISR_HANDLER){
     //Every time the timer completes, add to the time counter
-    current_time += TIMER_US_ReadPeriod();
+    current_time += TIMER_US_ReadPeriod();   
+    //STAMP_ISR_ClearPending();
 }
 
 uint32_t get_timestamp()
 {
-    uint32_t raw_timer_total_time = current_time + (uint32_t)TIMER_US_ReadCounter();
-    return (raw_timer_total_time/24); //Dependent on the BUS CLK speed.
+    uint32_t raw_timer_total_time = current_time + (uint32_t)TIMER_US_ReadCounter(); //What if get_timestamp in between periods?
+    return (raw_timer_total_time/29); //Dependent on the BUS CLK speed.
     // the raw_timer_total_time value is based on clock speed of the Timer. Conversion: 24 raw clocks roughly equal to one us.
 }
 
@@ -149,10 +150,10 @@ void test_TimerUs() //For debugging. IMU should be taking measurements in us.
     CyDelay(10);
     time1 = get_timestamp();    
     CyDelayUs(1000); //~24,000 clocks for 1 millisecond ~ 1000 microsecond (us). 
-                     //~23.8, 24 clocks for one microsecond.
+                     //~29 clocks for one microsecond.
     time2 = get_timestamp(); 
     sprintf(str,"time1: %u time2: %u\r\n",time1,time2);
-    printOut(str);
+    printOut(str); //Difference in the two times should be 1000 with time2 being the later time.
 }
 
 static int sh2_i2c_hal_open(sh2_Hal_t *self){
@@ -172,6 +173,7 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
     
     //Initialize Timer 
     TIMER_US_Start();
+    //TIMER_US_SetInterruptMode(TIMER_US_STATUS_TC_INT_MASK); 
     //printOut("Timer Initialized\r\n");
   
     //Initialize Timer tc interrupt
@@ -180,6 +182,7 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
     
     CyDelay(STARTUP_DELAY_MS); //Wait for components to be ready for STARTUP_DELAY_MS
     
+    //test_TimerUs();
     //Hardware reset the IMU RST pin
     uint16_t time_to_response = imu_reset();
     

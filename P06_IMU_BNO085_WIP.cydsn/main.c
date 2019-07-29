@@ -79,7 +79,7 @@ void printOut(char s[64])
         //otherwise, it returns zero.
     }
     USBUART_PutString(s);
-    CyDelay(250); //delay so statement can fully print
+    CyDelay(1); //delay so statement can fully print
     //End Print Statement
     #endif //USBUART_MODE
 }
@@ -250,7 +250,7 @@ void USBUART_setup()
     {
         //This is to see if device has been enumerated properly
     }
-    CyDelay(5000); //Henry: Need a delay here to delay the main loop for any init debug msgs
+    CyDelay(2000); //Henry: Need a delay here to delay the main loop for any init debug msgs
     //end USBUART Start process
     #endif //USBUART_MODE
 }
@@ -262,7 +262,7 @@ void IMU_setup()
     //Those IMU functions will set up IMU Interrupt, IMU I2C comms, and timer for timestamps.
     status = sh2_open(pSh2Hal, eventHandler, NULL); //sh2_open calls sh2_i2c_hal_open() in sh2_hal_psoc5.c
     sprintf(str,"sh2_open returned with status: %d\r\n",status);
-    printOut(str);
+    //printOut(str);
     status = sh2_setSensorCallback(sensorHandler, NULL); 
 }
 
@@ -275,7 +275,8 @@ int main(void)
     USBUART_setup();             //Start USBUART start process
     PWM_LED_Start();             //Init debug LEDs and Buzzer... no audio though
     PWM_EN_Start();
-    PWM_BUZZER_Start();
+    PWM_BUZZER_Start();   
+    
     printOut("****INITIALIZATION START****\r\n");
     IMU_setup();                 //Initialize IMU using SH2 HAL
     start_reports();
@@ -298,7 +299,6 @@ int main(void)
                 float j = value.un.gameRotationVector.j;
                 float k = value.un.gameRotationVector.k;
                 float r = value.un.gameRotationVector.real;
-                
                 printGameRotVec(i,j,k,r);
                 break;
             } //end Data_GAME_ROT_VEC
