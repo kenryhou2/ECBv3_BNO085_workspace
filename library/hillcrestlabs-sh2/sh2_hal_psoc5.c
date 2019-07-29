@@ -18,9 +18,6 @@
 #define STARTUP_DELAY_MS    2000
 #define READ_LEN            2       //Number of bytes to read to determine length
 
-//Debugging HAL read versions
-#define HAL_READ_V2_MODE
-
 //Debugging Constants
 uint16 interruptval;                //Polling interrupt input pin value
                                     //Note: Currently two ways of detecting if interrupt pin is Low from IMU: Polling and Interrupt.
@@ -107,7 +104,7 @@ static void imu_enable_ints(void){
 }
 
 uint16_t imu_reset(){ //function pulls IMU RST pin active low and then deasserts. Also has debugging capability.
-    printOut("IMU Hardware Resetting // Pin pulled LOW\r\n");
+//    printOut("IMU Hardware Resetting // Pin pulled LOW\r\n");
 //    int val = IMU_RST_Read();
 //    sprintf(str,"IMU_RST before reset: %d\r\n",val);
 //    printOut(str);
@@ -186,18 +183,17 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
     //Hardware reset the IMU RST pin
     uint16_t time_to_response = imu_reset();
     
-    
     //If we haven't timed out, return SH2_OK               
     if(time_to_response < 1000)
     {
         I2C_bus_state = BUS_IDLE;
         IMU_READY = 1;
-        //printOut("***INITIALIZATION SUCCESSFUL***\r\n");
+        printOut("***INITIALIZATION SUCCESSFUL***\r\n");
         return SH2_OK;
     }
     else
     {
-        //printOut("***INITIALIZATION ERROR***\r\n");
+        printOut("***INITIALIZATION ERROR***\r\n");
         return SH2_ERR;
     }
 }
@@ -215,21 +211,32 @@ static void sh2_i2c_hal_close(sh2_Hal_t *self){
     IS_OPEN = 0;
 }
  
- //Original Read Function
-#ifdef HAL_READ_V2_MODE
+/*HAL_READ Function Notes
+* I2C Reads are encased within a do-while loop and a delay to continually check the status of the read. The delays are necessary for the I2C to finish processing.
+* The HAL Read function is time critical, meaning if you put too many print statements or delays, it will affect the timeliness of the sh2_open() function in main.
+* The Sh2_open() function uses the HAL read to read in the initial SHTP advertisement packet.
+* The HAL read function iterates through multiple bus stages, and returns zero unless it successfully reaches the last I2C bus stage where it returns payload length.
+* This HAL read function behaves with the same logic as the STM version.
+* And when HAL read is called, in some function, SHTP_service() for example, SHTP_service is called multiple times, therefore HAL_read is called multiple times, thus cycling through all the bus stages,
+finally reaching the last stage where the transfer is complete.
+* Beware of the I2C configurations of the IMU_I2C_MasterReadBuf function. It is specific to the hardware. For example, the cnt parameter in the function is uint8_t in the PSoC 5LP and uint16_t in the PSoC 4.
+* Not too sure why HAL_MAX_TRANSFER_IN is 384 bytes, but I kept consistent with STM online version.
+*/
+
 static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){
     if(I2C_bus_state == BUS_IDLE && attention_needed)
     {
-        uint32_t result;
-        result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, READ_LEN,IMU_I2C_MODE_COMPLETE_XFER);
-        CyDelay(10);
-//        do{
-//            
-//            while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
-//            {
-//                CyDelayUs(1);
-//            }
-//        }while(result != IMU_I2C_MSTR_NO_ERROR);
+        uint32_t result; //Used for debugging and returning the status of each I2C read.
+        
+        //I2C Read statement start
+        do{
+            result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, READ_LEN,IMU_I2C_MODE_COMPLETE_XFER);
+            while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
+            {
+                CyDelayUs(1); //Note this delay is necessary here so the I2C read can finish copying to buffer.
+            }
+        }while(result != IMU_I2C_MSTR_NO_ERROR);
+        //I2C Read statement end
         
         if(result == IMU_I2C_MSTR_NO_ERROR)
         {
@@ -247,16 +254,12 @@ static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uin
         {
             I2C_bus_state = BUS_GOT_LEN;
             //printOut("BUS_GOT_LEN\r\n");
-            volatile uint16_t len = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int
-                                                                        //Then compares the length in two cases
-//            if(len > SH2_HAL_MAX_TRANSFER_IN)                           //Case 1: Length of cargo is larger than max transfer size
-//            {                                                               //if so: create payload length max transfer size
-
-            
+            volatile uint16_t len = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int                                                                       
             //len checks
             volatile uint32_t result;
             if(len <= 0xFF) //CASE 1: Length of cargo is less than max HAL transfer size and less than the I2C max transfer size. 
             {
+                
                 do
                 {
                     result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, (uint8_t)len, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
@@ -265,6 +268,7 @@ static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uin
                         CyDelayUs(1);
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
+                
                 payload_len = len;
             }
             
@@ -329,14 +333,12 @@ static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uin
             return payload_len;
         }
     } 
-    
     return 0;
 }
-#endif
 
 static int sh2_i2c_hal_write(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len)
 {
-    printOut("Writing msg\r\n");
+    //printOut("Writing msg\r\n");
     if ((pBuffer == 0) || (len == 0) || (len > SH2_HAL_MAX_TRANSFER_OUT)) //checking for invalid write lengths.
     {
         return SH2_ERR_BAD_PARAM;

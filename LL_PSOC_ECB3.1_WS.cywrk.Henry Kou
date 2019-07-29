@@ -13,7 +13,7 @@
 <v>Output</v>
 </TreeKeys>
 <TreeStates>
-<CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\TopDesign">
+<CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_hal.h">
 <ExpandedNodeIds>
 <v>LL_PSOC_ECB3.1_WS</v>
 <v>LL_PSOC_ECB3.1_WS\P00_Template\TopDesign</v>
