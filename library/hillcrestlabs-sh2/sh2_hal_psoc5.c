@@ -99,16 +99,14 @@ static void imu_i2c_stop(void){
 //}
 
 static void imu_disable_ints(void){
-    //IMU_ISR_Disable();
     IMU_ISR_INT_Disable();
 }
 
 static void imu_enable_ints(void){
-    //IMU_ISR_Enable();
     IMU_ISR_INT_Enable();
 }
 
-uint16_t imu_reset(){ //Henry: custom function to initialize the hardware
+uint16_t imu_reset(){ //function pulls IMU RST pin active low and then deasserts. Also has debugging capability.
     printOut("IMU Hardware Resetting // Pin pulled LOW\r\n");
 //    int val = IMU_RST_Read();
 //    sprintf(str,"IMU_RST before reset: %d\r\n",val);
@@ -138,72 +136,7 @@ uint16_t imu_reset(){ //Henry: custom function to initialize the hardware
     return count;
 }
 
-void imu_handshake() //for debugging
-{
-    //Handshake??
-    
-    //imu_read(...) is just a hard read from the I2C bus.
-    //imu_get_message is SHTP based, with length considered.handshake_buffer_len is the buffer read length by this imu read...
-        
-    //SH2 get advertisement
-    /*Operation:
-    * MCU writes reset command along with SHTP header from the int array 'data' to the IMU
-    * MCU reads reset response along with SHTP header from the int array 'buff' from the IMU
-    * Result is the error status of the read/write. 
-    * If result is equal to error, while perform the write/read again.
-    */
-    uint8_t data[6] = {0x06,0x00,0x02,0x00,0xF9,0x00};
-    int buffSize = 292;
-    uint8_t buff[buffSize]; //buff[4];
-    for(int i = 0; i < buffSize; i++)
-    {
-        //data[i] = 1;
-        buff[i] = 0;
-    }
-    
-    uint32_t result = 0;
-            	
-    CyDelay(500);
-    //writing software reset command to the IMU.
-    do{
-        result = IMU_I2C_MasterWriteBuf(0x4A, data, 6, IMU_I2C_MODE_COMPLETE_XFER); //not sure why we only write the first four bytes... the header only..
-        while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_WR_CMPLT))
-        {
-            
-        }
-    }while(result != IMU_I2C_MSTR_NO_ERROR);
-    
-    //reading in an ad packet
-	do
-    {
-	IMU_I2C_MasterReadBuf(0x4A, buff, buffSize, IMU_I2C_MODE_COMPLETE_XFER);
-		while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT)) //bitwise &.. triggers means master_status is 0. 0 & 1 = 0
-		{
-			//if stuck, means masterStatus is 0... probably some error.           
-		}
-	}
-    while(result != IMU_I2C_MSTR_NO_ERROR);
-    
-    interruptval = IMU_INT_Read();
-    sprintf(str,"interrupt value after read: %d\r\n",interruptval);
-    printOut(str);
-    //reads one... therefore the interrupt deasserts after the write and read.
-
-    printOut("buff after read: \r\n");
-    for(int i = 0; i < buffSize; i++)
-    {
-        sprintf(str, "byte %d: %02x\r\n",i,buff[i]);
-        printOut(str);
-    }
-    interruptval = IMU_INT_Read();
-    sprintf(str,"interrupt value after a while: %d\r\n",interruptval);
-    printOut(str);
-    
-    printOut("IMU get ad done\r\n");
-    
-}
-
-int poll_IMU_INT() //For debugging
+int poll_IMU_INT() //For debugging, reads in the current state of the IMU interrupt pin.
 {
     int intval = IMU_INT_Read();  
     sprintf(str,"interrupt value: %d\r\n",interruptval);
@@ -211,7 +144,7 @@ int poll_IMU_INT() //For debugging
     return intval;
 }
 
-void test_TimerUs() //For debugging
+void test_TimerUs() //For debugging. IMU should be taking measurements in us.
 {
     printOut("Test Timer\r\n");
     volatile uint32_t time1 = 0;
@@ -234,23 +167,21 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
         
     //Initialize and Enable Comms to IMU with I2C bus
     IMU_I2C_Start();
-    printOut("IMU I2C Initialized\r\n");
+    //printOut("IMU I2C Initialized\r\n");
     
     //Init IMU Interrupts
     IMU_ISR_INT_StartEx(IMU_ISR_HANDLER); //Install the IMU interrupt handler.  
-    printOut("IMU Interrupt Initialized\r\n");
+    //printOut("IMU Interrupt Initialized\r\n");
     
     //Initialize Timer 
     TIMER_US_Start();
-    printOut("Timer Initialized\r\n");
+    //printOut("Timer Initialized\r\n");
   
     //Initialize Timer tc interrupt
     STAMP_ISR_StartEx(TIMER_ISR_HANDLER);
-    printOut("Timer TC Interrupt Initialized\r\n");
+    //printOut("Timer TC Interrupt Initialized\r\n");
     
     CyDelay(STARTUP_DELAY_MS); //Wait for components to be ready for STARTUP_DELAY_MS
-   
-    //imu_handshake();
     
     //Hardware reset the IMU RST pin
     uint16_t time_to_response = imu_reset();
@@ -261,12 +192,12 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
     {
         I2C_bus_state = BUS_IDLE;
         IMU_READY = 1;
-        printOut("***INITIALIZATION SUCCESSFUL***\r\n");
+        //printOut("***INITIALIZATION SUCCESSFUL***\r\n");
         return SH2_OK;
     }
     else
     {
-        printOut("***INITIALIZATION ERROR***\r\n");
+        //printOut("***INITIALIZATION ERROR***\r\n");
         return SH2_ERR;
     }
 }
@@ -283,133 +214,7 @@ static void sh2_i2c_hal_close(sh2_Hal_t *self){
     //Mark that the port is closed
     IS_OPEN = 0;
 }
-
-#ifdef HAL_READ_V1_MODE
-static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t)
-{
-    int retval = 0;
-    
-    imu_disable_ints();
-    
-    if(rx_buf_len > 0){
-        if(rx_buf_len > len){
-            retval = 0;
-            return retval;
-        }
-        
-        memcpy(pBuffer, rx_buf, payload_len);
-        retval = rx_buf_len;
-        rx_buf_len = 0;
-    } else if (RX_DATA_READY){
-        retval = imu_get_message();
-        
-        
-        if(rx_buf_len > len){
-            retval = 0;
-            return retval;
-        }
-        
-        memcpy(pBuffer, rx_buf, rx_buf_len);
-        rx_buf_len = 0;
-        RX_DATA_READY = 0;
-    } else {
-        retval = 0;
-    }
-    
-    imu_enable_ints();
-    *t = get_timestamp();
-    
-    return retval;
-}
-#endif
-
- //Read function STM inspired. Took out returns so entire read function runs and added delays after the i2c reads.
-#ifdef HAL_READ_VSTM_MODE
-static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){
-    if(I2C_bus_state == BUS_IDLE && attention_needed)
-    {
-        uint32_t result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, READ_LEN,IMU_I2C_MODE_COMPLETE_XFER);
-        CyDelayUs(1000); //Delay Needs to be here so I2C can successfully finish transferring
-        if(result == IMU_I2C_MSTR_NO_ERROR)
-        {
-            I2C_bus_state = BUS_READING_LEN;
-            printOut("BUS_READING_LEN\r\n");
-        }
-        else
-            I2C_bus_state = BUS_ERR;
-        //return 0;
-    }
-    
-    if(I2C_bus_state == BUS_READING_LEN)
-    {
-        
-        if((IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT)) // originally  bitwise &
-        {
-            I2C_bus_state = BUS_GOT_LEN;
-            printOut("BUS_GOT_LEN\r\n");
-            uint16_t len = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int
-                                                                        //Then compares the length in two cases
-            if(len > SH2_HAL_MAX_TRANSFER_IN)                           //Case 1: Length of cargo is larger than max transfer size
-            {                                                               //if so: create payload length max transfer size
-                payload_len = SH2_HAL_MAX_TRANSFER_IN;                  
-            } 
-            else                                                        //Case 2: Length cargo is smaller or equal to max transfer size
-            {                                                               //if so: payload length is equal to that length
-                payload_len = len;
-            }
-            
-            sprintf(str,"Payload length: %u\r\n",payload_len);
-            printOut(str);
-            
-            uint32_t result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, payload_len, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
-            CyDelayUs(2000); //Delay Needs to be here so I2C can successfully finish transferring
-            //uint32_t result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, pBuffer, payload_len, IMU_I2C_MODE_COMPLETE_XFER);
-            if(result == IMU_I2C_MSTR_NO_ERROR)
-            {
-                I2C_bus_state = BUS_READING_TRANSFER;
-                printOut("BUS_READING_TRANSFER\r\n");
-            }
-            else
-                I2C_bus_state = BUS_ERR;
-        }
-        //return 0;
-    }    
-    if (I2C_bus_state == BUS_READING_TRANSFER) 
-    {
-        //If the read is successful, copy the memory into the buffer
-        CyDelayUs(2000); //this delay needs to be here.
-        if((IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
-        {
-            I2C_bus_state = BUS_GOT_TRANSFER;
-            
-            memcpy(pBuffer, rx_buf, payload_len);
-            CyDelay(100);
-            *t = get_timestamp();
-            //sprintf(str,"time: %u\r\n",*t);
-            //printOut(str);
-            I2C_bus_state = BUS_IDLE;
-            printOut("TRANSFER_COMPLETE\r\n");
-        }
-    } 
-    int seq = pBuffer[3];
-    sprintf(str,"sequence read in: %d\r\n",seq);
-    printOut(str);
-    return payload_len;
-}
-#endif
-
-/*
-    do{
-        result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, SH2_HAL_MAX_TRANSFER_IN , IMU_I2C_MODE_COMPLETE_XFER);
-        while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
-        {
-            CyDelayUs(1);
-        }
-    }while(result != IMU_I2C_MSTR_NO_ERROR);
-
-
-*/
-
+ 
  //Original Read Function
 #ifdef HAL_READ_V2_MODE
 static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){
@@ -446,27 +251,7 @@ static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uin
                                                                         //Then compares the length in two cases
 //            if(len > SH2_HAL_MAX_TRANSFER_IN)                           //Case 1: Length of cargo is larger than max transfer size
 //            {                                                               //if so: create payload length max transfer size
-//                payload_len = SH2_HAL_MAX_TRANSFER_IN;                  
-//            } 
-//            else                                                        //Case 2: Length cargo is smaller or equal to max transfer size
-//            {                                                               //if so: payload length is equal to that length
-//                payload_len = len;
-//            }
-//            
-//            sprintf(str,"Payload length: %u\r\n",payload_len);
-//            printOut(str);
-//            
-//            uint32_t result; 
-//            
-//            result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, payload_len, IMU_I2C_MODE_COMPLETE_XFER); 
-//            CyDelay(100); //Delay needs to be in here to let I2C finish transfer.
-//            do{
-//                result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, payload_len, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
-//                while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
-//                {
-//                    CyDelayUs(1);
-//                }
-//            }while(result != IMU_I2C_MSTR_NO_ERROR);
+
             
             //len checks
             volatile uint32_t result;

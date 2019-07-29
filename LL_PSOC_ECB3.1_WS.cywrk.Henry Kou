@@ -1060,18 +1060,11 @@
 <Unloaded />
 <OpenDocs>
 <name v=".\P06_IMU_BNO085_WIP.cydsn\main.c" />
-<name v=".\library\hillcrestlabs-sh2\sh2.h" />
-<name v=".\library\hillcrestlabs-sh2\shtp.c" />
 <name v=".\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" />
 <name v=".\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" />
-<name v=".\library\hillcrestlabs-sh2\sh2.c" />
-<name v=".\library\hillcrestlabs-sh2\shtp.h" />
 <name v=".\library\hillcrestlabs-sh2\sh2_util.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\USBUART.c" />
 <name v=".\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" />
-<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\LED_R.c" />
-<name v=".\library\hillcrestlabs-sh2\sh2_hal.h" />
-<name v=".\library\hillcrestlabs-sh2\sh2_SensorValue.c" />
-<name v=".\library\hillcrestlabs-sh2\sh2_SensorValue.h" />
 </OpenDocs>
 <OpenDocsLayout><![CDATA[<?xml version="1.0"?><!--
 
@@ -1079,7 +1072,7 @@
   Copyright (c) 2001-2016 Actipro Software LLC.  All rights reserved.
   http://www.actiprosoftware.com
 
---><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="1184, 500" SelectedTabbedMdiWindow="afa317c4-2024-43e7-bedf-2c6a6c6f78fc"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="6b3ad39e-c247-4323-937b-9ed0d0693992" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.h" Guid="95e021c2-2c57-4894-b9e9-497b76c97fe5" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\shtp.c" Guid="fc887567-a489-4da8-a356-391f5b625293" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" Guid="30cf41e7-32de-44ef-a397-9e97d59438ea" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" Guid="2bb29e81-c333-4e09-be85-188d77e8e3f5" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.c" Guid="2a1fbfa9-cd11-43e9-8923-cddb946da713" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\shtp.h" Guid="03052daa-5599-43c3-91d2-28cc668e1e6d" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_util.c" Guid="733a1747-5aee-42a0-94c6-7739266fb2a3" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="afa317c4-2024-43e7-bedf-2c6a6c6f78fc" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\LED_R.c" Guid="d6e840ba-76f5-4fbe-b134-908667ba9661" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal.h" Guid="b6e36504-3cb4-43de-b881-4379c1a57439" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_SensorValue.c" Guid="ee431a28-1093-42d7-9b4f-20d75618eb1c" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_SensorValue.h" Guid="d5bec704-0536-4b34-a849-e653c14cce20" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
+--><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="1048, 375" SelectedTabbedMdiWindow="30cf41e7-32de-44ef-a397-9e97d59438ea"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="6b3ad39e-c247-4323-937b-9ed0d0693992" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" Guid="30cf41e7-32de-44ef-a397-9e97d59438ea" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" Guid="2bb29e81-c333-4e09-be85-188d77e8e3f5" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_util.c" Guid="ae25c0df-a1c6-4a6b-9293-ce152ffc0f50" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\USBUART.c" Guid="2c2ca24d-d917-433d-935e-90d3ef650c02" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="79112eac-d554-4b76-a809-1c5d10b99816" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
 <config v="" />
 <AutoUpdate v="true" />
 </CyGuid_843a90a4-0c4b-4e44-991d-05e7fb117a21>
