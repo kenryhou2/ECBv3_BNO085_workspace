@@ -1027,14 +1027,20 @@
 <OpenDocs>
 <name v=".\P06_IMU_BNO085_WIP.cydsn\main.c" />
 <name v=".\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" />
-<name v=".\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" />
 <name v=".\library\hillcrestlabs-sh2\sh2_util.c" />
-<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\USBUART.c" />
 <name v=".\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" />
-<name v=".\library\hillcrestlabs-sh2\sh2_hal.h" />
-<name v=".\library\hillcrestlabs-sh2\sh2.c" />
 <name v=".\library\hillcrestlabs-sh2\shtp.c" />
+<<<<<<< HEAD
 <name v=".\library\hillcrestlabs-sh2\sh2_SensorValue.c" />
+=======
+<name v=".\library\hillcrestlabs-sh2\sh2.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\CyLib.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\TIMER_US.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\STAMP_ISR.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\USBUART_cdc.c" />
+<name v=".\library\hillcrestlabs-sh2\sh2_SensorValue.c" />
+<name v=".\library\hillcrestlabs-sh2\sh2.h" />
+>>>>>>> added printing both quat, accel information.W
 </OpenDocs>
 <OpenDocsLayout><![CDATA[<?xml version="1.0"?><!--
 
@@ -1042,7 +1048,11 @@
   Copyright (c) 2001-2016 Actipro Software LLC.  All rights reserved.
   http://www.actiprosoftware.com
 
+<<<<<<< HEAD
 --><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="1048, 466" SelectedTabbedMdiWindow="6b3ad39e-c247-4323-937b-9ed0d0693992"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="6b3ad39e-c247-4323-937b-9ed0d0693992" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" Guid="30cf41e7-32de-44ef-a397-9e97d59438ea" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" Guid="2bb29e81-c333-4e09-be85-188d77e8e3f5" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_util.c" Guid="ae25c0df-a1c6-4a6b-9293-ce152ffc0f50" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\USBUART.c" Guid="2c2ca24d-d917-433d-935e-90d3ef650c02" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="79112eac-d554-4b76-a809-1c5d10b99816" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal.h" Guid="913c4b71-4c3e-4049-bd14-7ca9c4b1f730" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.c" Guid="163c815e-a9b3-4252-847d-1a97fa5b352a" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\shtp.c" Guid="3fea47f5-810a-43de-b950-fc9fd5493d8f" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_SensorValue.c" Guid="c4e2a6f6-954b-4ddd-9285-efe6d0489aed" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
+=======
+--><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="1048, 466" SelectedTabbedMdiWindow="6b3ad39e-c247-4323-937b-9ed0d0693992"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="6b3ad39e-c247-4323-937b-9ed0d0693992" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" Guid="30cf41e7-32de-44ef-a397-9e97d59438ea" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_util.c" Guid="ae25c0df-a1c6-4a6b-9293-ce152ffc0f50" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="79112eac-d554-4b76-a809-1c5d10b99816" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\shtp.c" Guid="3fea47f5-810a-43de-b950-fc9fd5493d8f" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.c" Guid="a87426b3-2567-45fa-a7b5-cbb06dd3e76f" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\CyLib.c" Guid="7d9fe043-e815-4be9-b42d-a3f224379598" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\TIMER_US.c" Guid="09015463-bfbe-4cca-9c43-cb6334e369f1" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\STAMP_ISR.c" Guid="6339f888-92e4-4fff-be30-9d0d4283dd58" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\USBUART_cdc.c" Guid="7894985b-e640-41fe-8dbc-30632a6cc19c" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_SensorValue.c" Guid="85aa2030-99c5-46d6-90c9-148ee4f67e6d" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.h" Guid="bfca014b-cda1-4ce6-835f-959b1aac1c8b" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
+>>>>>>> added printing both quat, accel information.W
 <config v="" />
 <AutoUpdate v="true" />
 </CyGuid_843a90a4-0c4b-4e44-991d-05e7fb117a21>
