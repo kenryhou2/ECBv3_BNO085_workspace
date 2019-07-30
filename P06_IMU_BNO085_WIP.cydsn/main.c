@@ -27,6 +27,7 @@
 
 //IMU Data modes
 #define DATA_GAME_ROT_VEC   0 //Game Rotation Vector uses a variety of raw sensors to generate a quaternion.
+#define ACCELEROMETER       1 
 #define DATA_TRANSM2        3
 
 #define INVALID_INPUT -1
@@ -51,10 +52,11 @@ volatile int status;                //Every sh2 function returns an int. Values 
 static char str [64];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
+float transmitBuf[4];   
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
-uint8_t state =DATA_GAME_ROT_VEC;
+uint8_t state = ACCELEROMETER;//DATA_GAME_ROT_VEC;
 
 //STATIC VARS 
 //Def: Static variables retains value even when declared out of scope... essentially a global variable with a few caveats.
@@ -71,6 +73,7 @@ static sh2_SensorEvent_t sensor_event;  //Used in start_reports()
 //Utility function for debugging
 void printOut(char s[64])           
 {
+    
     #ifdef USBUART_MODE
     //Print Statement. Each time you print, use both CDCIsReady() and PutString(). 
     while(0 == USBUART_CDCIsReady())
@@ -82,7 +85,9 @@ void printOut(char s[64])
     CyDelay(1); //delay so statement can fully print
     //End Print Statement
     #endif //USBUART_MODE
+    
 }
+
 
 //Utility function for debugging
 char * f2cstring(char s[32],float f) //Converts floats to a string for printOut
@@ -110,14 +115,23 @@ void testPrintFloats()
 }
 
 //Utility function for debugging
-void printGameRotVec(float i, float j, float k, float r)
+void printDataToStr(float i, float j, float k)
 {
     char s0[32];
     char s1[32];
     char s2[32];
-    char s3[32];
-    sprintf(str,"i:%s j:%s k:%s real:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r));
+    //char s3[32];
+    sprintf(str,"x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
     printOut(str);
+}
+
+void sendFloatArr(float i, float j, float k, float r)
+{
+    transmitBuf[0] = i;
+    transmitBuf[1] = j;
+    transmitBuf[2] = k;
+    transmitBuf[3] = r;
+    USBUART_PutData((void *)transmitBuf, 16);
 }
 
 static int start_reports()
@@ -126,7 +140,7 @@ static int start_reports()
     int status;
     int sensorID;
     
-    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR};
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER};
     
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
@@ -299,10 +313,26 @@ int main(void)
                 float j = value.un.gameRotationVector.j;
                 float k = value.un.gameRotationVector.k;
                 float r = value.un.gameRotationVector.real;
-                printGameRotVec(i,j,k,r);
+                
+                
+                
+                sendFloatArr(i,j,k,r);
+                //printGameRotVec(i,j,k,r);
                 break;
             } //end Data_GAME_ROT_VEC
             
+            case ACCELEROMETER:
+            {
+                sh2_service();
+                sh2_SensorValue_t value;
+                // Convert event to value
+                sh2_decodeSensorEvent(&value, &sensor_event);
+                float x = value.un.accelerometer.x; 
+                float y = value.un.accelerometer.y; 
+                float z = value.un.accelerometer.z; 
+                printDataToStr(x,y,z);
+                break;   
+            }
             
             
             case DATA_TRANSM2:
@@ -351,7 +381,7 @@ int main(void)
                             float k = value.un.gameRotationVector.k;
                             float r = value.un.gameRotationVector.real;
                             
-                            printGameRotVec(i,j,k,r);
+                            printDataToStr(i,j,k);
                             //sprintf(str, "%.2f,%.2f,%.2f,%.2f\n", i, j, k, r);
                             
                             //value.un.linearAcceleration
