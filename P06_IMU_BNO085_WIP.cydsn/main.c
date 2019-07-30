@@ -52,11 +52,11 @@ volatile int status;                //Every sh2 function returns an int. Values 
 static char str [64];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
-float transmitBuf[4];   
+float transmitBuf[10];   
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
-uint8_t state = ACCELEROMETER;//DATA_GAME_ROT_VEC;
+uint8_t state = DATA_GAME_ROT_VEC;
 
 //STATIC VARS 
 //Def: Static variables retains value even when declared out of scope... essentially a global variable with a few caveats.
@@ -73,7 +73,7 @@ static sh2_SensorEvent_t sensor_event;  //Used in start_reports()
 //Utility function for debugging
 void printOut(char s[64])           
 {
-    
+    /*
     #ifdef USBUART_MODE
     //Print Statement. Each time you print, use both CDCIsReady() and PutString(). 
     while(0 == USBUART_CDCIsReady())
@@ -85,7 +85,7 @@ void printOut(char s[64])
     CyDelay(1); //delay so statement can fully print
     //End Print Statement
     #endif //USBUART_MODE
-    
+    */
 }
 
 
@@ -125,6 +125,16 @@ void printDataToStr(float i, float j, float k)
     printOut(str);
 }
 
+void printGameRotVec(float i,float j,float k,float r)
+{
+    char s0[32];
+    char s1[32];
+    char s2[32];
+    char s3[32];
+    sprintf(str,"i:%s j:%s k:%s r:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r));
+    printOut(str);
+}
+
 void sendFloatArr(float i, float j, float k, float r)
 {
     transmitBuf[0] = i;
@@ -140,7 +150,7 @@ static int start_reports()
     int status;
     int sensorID;
     
-    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER};
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};// SH2_ACCELEROMETER
     
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
@@ -151,8 +161,8 @@ static int start_reports()
     config.sensorSpecific = 0;
 
     // Select a report interval.
-    config.reportInterval_us = 10000;  // microseconds (100Hz)
-    // config.reportInterval_us = 2500;   // microseconds (400Hz)
+    //config.reportInterval_us = 10000;  // microseconds (100Hz)
+    config.reportInterval_us = 2500;   // microseconds (400Hz)
     // config.reportInterval_us = 1000;   // microseconds (1000Hz)
 
     for (unsigned int n = 0; n < ARRAY_LEN(enabledSensors); n++)
@@ -297,123 +307,52 @@ int main(void)
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
 	
     /****LOOP****/
+    bool got_accel = 0, got_gyro = 0, got_rot = 0;
     for(;;)
     {
-        switch(state)
-        {                   
-            case DATA_GAME_ROT_VEC:
+        sh2_service();
+        sh2_SensorValue_t value;
+        status = sh2_decodeSensorEvent(&value, &sensor_event); //Sensors output events as reports everytime the IMU reads from the sensor.
+        
+        switch(sensor_event.reportId)
+        {
+            case SH2_GAME_ROTATION_VECTOR:
             {
-                sh2_service();               
-                sh2_SensorValue_t value;
-                // Convert event to value
-                sh2_decodeSensorEvent(&value, &sensor_event); //Sensors output events as reports everytime the IMU reads from the sensor.                
-
-                //Game Rotation Vector has a quaternion output.
-                float i = value.un.gameRotationVector.i; 
-                float j = value.un.gameRotationVector.j;
-                float k = value.un.gameRotationVector.k;
-                float r = value.un.gameRotationVector.real;
-                
-                
-                
-                sendFloatArr(i,j,k,r);
-                //printGameRotVec(i,j,k,r);
+                got_rot = 1;
+                transmitBuf[0] = value.un.gameRotationVector.i;
+                transmitBuf[1] = value.un.gameRotationVector.j;
+                transmitBuf[2] = value.un.gameRotationVector.k;
+                transmitBuf[3] = value.un.gameRotationVector.real;
                 break;
-            } //end Data_GAME_ROT_VEC
-            
-            case ACCELEROMETER:
-            {
-                sh2_service();
-                sh2_SensorValue_t value;
-                // Convert event to value
-                sh2_decodeSensorEvent(&value, &sensor_event);
-                float x = value.un.accelerometer.x; 
-                float y = value.un.accelerometer.y; 
-                float z = value.un.accelerometer.z; 
-                printDataToStr(x,y,z);
-                break;   
             }
-            
-            
-            case DATA_TRANSM2:
+            case SH2_ACCELEROMETER:
             {
-                
-                /* Service USB CDC when device is configured. */
-                if (0u != USBUART_GetConfiguration())
-                {
-                    /* Check for input data from host. */
-                    if (USBUART_DataIsReady())
-                    {
-                        /* Read received data and re-enable OUT endpoint. */
-                        count = USBUART_GetAll(buffer);
-                    }
-                    //CyDelay(1);
-                    if(count != 0u) {
-                        process_commands(buffer, count);
-                        count = 0u;
-                    }
-                    /*while (0u == USBUART_CDCIsReady())
-                            {
-                            }
-                    *///count++;
-                    if(USBUART_CDCIsReady())
-                    {
-                        if(send_time)
-                        {
-                            uint32_t time = get_timestamp();
-                        
-                            char str[64];
-                            sprintf(str, "%d ms\n", time/1000);
-                            USBUART_PutString(str);
-                            send_time = 0;
-                        } 
-                        else if(new_imu_data) 
-                        {
-                            new_imu_data = 0;
-                            char str[64];
-                            
-                            sh2_SensorValue_t value;
-                            // Convert event to value
-                            sh2_decodeSensorEvent(&value, &sensor_event);
-                            
-                            float i = value.un.gameRotationVector.i;
-                            float j = value.un.gameRotationVector.j;
-                            float k = value.un.gameRotationVector.k;
-                            float r = value.un.gameRotationVector.real;
-                            
-                            printDataToStr(i,j,k);
-                            //sprintf(str, "%.2f,%.2f,%.2f,%.2f\n", i, j, k, r);
-                            
-                            //value.un.linearAcceleration
-                            /*sprintf(str, "x:%.2f, y:%.2f, z:%.2f, wx:%.2f, wy:%.2f, wz:%.2f, i:%.2f, j:%.2f, k:%.2f, r:%.2f\n", 
-                                x,y,z, wx,wy,wz, i,j,k,r);
-                            */
-                            //sprintf(str, "%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n", x,y,z, wx,wy,wz, i,j,k,r);
-                            /*sprintf(str, "%d,%d,%d,%d,%d,%d,%d,%d\n", 
-                                ADC_GetResult16(0), ADC_GetResult16(1), ADC_GetResult16(2), ADC_GetResult16(3),
-                                ADC_GetResult16(4), ADC_GetResult16(5), ADC_GetResult16(6), ADC_GetResult16(7));
-                            */
-                            //USBUART_PutString(str);
-                        }
-                    }
-                    //LED_1_Write(which == 0);
-                    //LED_2_Write(which == 1);
-                    //LED_3_Write(which == 2);
-                    //LED_4_Write(which == 3);
-                    
-                    //            if(aux == 0)
-                    //                which++;
-                    //            which %= 4;
-                    //            
-                    //            aux++;
-                   
-                    //CyDelay(1);
-
-                }//USBUART_Getconfig
-                
-                sh2_service(); 
-            } //End data transm2            
-        } //End Switch statement
+                got_accel = 1;
+                transmitBuf[4] = value.un.accelerometer.x; 
+                transmitBuf[5] = value.un.accelerometer.y; 
+                transmitBuf[6] = value.un.accelerometer.z;
+                break;
+            }
+            case SH2_CAL_GYRO:
+            {
+                got_gyro = 1;
+                transmitBuf[7] = value.un.gyroscope.x; 
+                transmitBuf[8] = value.un.gyroscope.y; 
+                transmitBuf[9] = value.un.gyroscope.z;
+                break;
+            }
+            default:
+              continue;
+        }
+        
+        if (got_accel && got_gyro && got_rot)
+        {
+            printOut("");
+            #ifdef  USBUART_MODE
+            USBUART_PutData(( void *)transmitBuf,40);
+            #endif
+        }
+        
     } //End For loop
 } //end Main
 
