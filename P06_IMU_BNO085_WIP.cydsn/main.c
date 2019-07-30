@@ -16,6 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
+//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 #define BUZZER_TIMER_CLK 8000000
 #define USBFS_DEVICE    (0u)
 
@@ -24,12 +25,6 @@
 */
 #define USBUART_BUFFER_SIZE (64u)
 #define LINE_STR_LENGTH     (20u)
-
-//IMU Data modes
-#define DATA_GAME_ROT_VEC   0 //Game Rotation Vector uses a variety of raw sensors to generate a quaternion.
-#define DATA_ACCELEROMETER  1 
-#define DATA_GYRO           2
-#define DATA_TRANSM2        3
 
 #define INVALID_INPUT -1
 #define NO_CMD_FOUND  -2
@@ -57,7 +52,6 @@ float transmitBuf[10];
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
-uint8_t state = DATA_GAME_ROT_VEC;
 
 //STATIC VARS 
 //Def: Static variables retains value even when declared out of scope... essentially a global variable with a few caveats.
@@ -73,9 +67,9 @@ static sh2_SensorEvent_t sensor_event;  //Used in start_reports()
 
 //Utility function for debugging
 void printOut(char s[64])           
-{
-    /*
+{ 
     #ifdef USBUART_MODE
+    #ifndef DATA_OUTPUT_MODE
     //Print Statement. Each time you print, use both CDCIsReady() and PutString(). 
     while(0 == USBUART_CDCIsReady())
     {
@@ -85,8 +79,8 @@ void printOut(char s[64])
     USBUART_PutString(s);
     CyDelay(1); //delay so statement can fully print
     //End Print Statement
+    #endif
     #endif //USBUART_MODE
-    */
 }
 
 
@@ -330,16 +324,16 @@ int main(void)
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
 	
     /****LOOP****/
-    bool got_accel = 0, got_gyro = 0, got_rot = 0;
+    bool got_accel = 0, got_gyro = 0, got_rot = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
     for(;;)
     {
         sh2_service();
         sh2_SensorValue_t value;
-        status = sh2_decodeSensorEvent(&value, &sensor_event); //Sensors output events as reports everytime the IMU reads from the sensor.
+        status = sh2_decodeSensorEvent(&value, &sensor_event); //sensor_event fluctuates type of data it is outputting randomly. Use flags to detect when certain sensor is selected.
         
         switch(sensor_event.reportId)
         {
-            case SH2_GAME_ROTATION_VECTOR:
+            case SH2_GAME_ROTATION_VECTOR:                  //detection of the event being for a certain sensor.
             {
                 got_rot = 1;
                 transmitBuf[0] = value.un.gameRotationVector.i;
@@ -370,7 +364,6 @@ int main(void)
         
         if (got_accel && got_gyro && got_rot)
         {
-            printOut("");
             #ifdef  USBUART_MODE
             USBUART_PutData(( void *)transmitBuf,40);
             #endif
