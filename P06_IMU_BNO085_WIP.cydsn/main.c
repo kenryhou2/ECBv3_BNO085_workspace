@@ -27,8 +27,8 @@
 
 //IMU Data modes
 #define DATA_GAME_ROT_VEC   0 //Game Rotation Vector uses a variety of raw sensors to generate a quaternion.
-#define ACCELEROMETER       1 
-#define DATA_ACCEL_ROT_VEC  2
+#define DATA_ACCELEROMETER  1 
+#define DATA_GYRO           2
 #define DATA_TRANSM2        3
 
 #define INVALID_INPUT -1
@@ -128,6 +128,22 @@ void printAccel(float i, float j, float k)
 //    char s6[32];
     //sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r),
     //f2cstring(s4,x), f2cstring(s5,y), f2cstring(s6,z));
+    sprintf(str," x:%s y:%s z:%s",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
+    printOut(str);
+}
+
+void printGyro(float i, float j, float k)
+{
+    char s0[32];
+    char s1[32];
+    char s2[32];
+
+//    char s3[32];
+//    char s4[32];
+//    char s5[32];
+//    char s6[32];
+    //sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r),
+    //f2cstring(s4,x), f2cstring(s5,y), f2cstring(s6,z));
     sprintf(str," x:%s y:%s z:%s \r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
     printOut(str);
 }
@@ -167,7 +183,11 @@ static int start_reports()
     int status;
     int sensorID;
     
+<<<<<<< HEAD
     static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};// SH2_ACCELEROMETER
+=======
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};
+>>>>>>> added gyro prints. All can print. Inefficient process, need to put data
     
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
@@ -388,7 +408,7 @@ int main(void)
                 
             } //end Data_GAME_ROT_VEC
             
-            case ACCELEROMETER:
+            case DATA_ACCELEROMETER:
             {
                 sh2_service();
                 sh2_SensorValue_t value;
@@ -398,6 +418,19 @@ int main(void)
                 float y = value.un.accelerometer.y; 
                 float z = value.un.accelerometer.z; 
                 printAccel(x,y,z);
+                //break;   
+            }
+            
+            case DATA_GYRO:
+            {
+                sh2_service();
+                sh2_SensorValue_t value;
+                // Convert event to value
+                sh2_decodeSensorEvent(&value, &sensor_event);
+                float x = value.un.gyroscope.x;
+                float y = value.un.gyroscope.y; 
+                float z = value.un.gyroscope.z; 
+                printGyro(x,y,z);
                 break;   
             }
             
