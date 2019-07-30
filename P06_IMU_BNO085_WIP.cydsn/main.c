@@ -28,6 +28,7 @@
 //IMU Data modes
 #define DATA_GAME_ROT_VEC   0 //Game Rotation Vector uses a variety of raw sensors to generate a quaternion.
 #define ACCELEROMETER       1 
+#define DATA_ACCEL_ROT_VEC  2
 #define DATA_TRANSM2        3
 
 #define INVALID_INPUT -1
@@ -56,7 +57,7 @@ float transmitBuf[4];
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
-uint8_t state = ACCELEROMETER;//DATA_GAME_ROT_VEC;
+uint8_t state = DATA_GAME_ROT_VEC;
 
 //STATIC VARS 
 //Def: Static variables retains value even when declared out of scope... essentially a global variable with a few caveats.
@@ -115,13 +116,29 @@ void testPrintFloats()
 }
 
 //Utility function for debugging
-void printDataToStr(float i, float j, float k)
+void printAccel(float i, float j, float k)
 {
     char s0[32];
     char s1[32];
     char s2[32];
-    //char s3[32];
-    sprintf(str,"x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
+
+//    char s3[32];
+//    char s4[32];
+//    char s5[32];
+//    char s6[32];
+    //sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r),
+    //f2cstring(s4,x), f2cstring(s5,y), f2cstring(s6,z));
+    sprintf(str," x:%s y:%s z:%s \r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
+    printOut(str);
+}
+
+void printGameRotVec(float i,float j,float k,float r)
+{
+    char s0[32];
+    char s1[32];
+    char s2[32];
+    char s3[32];
+    sprintf(str,"i:%s j:%s k:%s r:%s",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r));
     printOut(str);
 }
 
@@ -314,11 +331,9 @@ int main(void)
                 float k = value.un.gameRotationVector.k;
                 float r = value.un.gameRotationVector.real;
                 
+                //sendFloatArr(i,j,k,r);
+                printGameRotVec(i,j,k,r);
                 
-                
-                sendFloatArr(i,j,k,r);
-                //printGameRotVec(i,j,k,r);
-                break;
             } //end Data_GAME_ROT_VEC
             
             case ACCELEROMETER:
@@ -330,11 +345,11 @@ int main(void)
                 float x = value.un.accelerometer.x; 
                 float y = value.un.accelerometer.y; 
                 float z = value.un.accelerometer.z; 
-                printDataToStr(x,y,z);
+                printAccel(x,y,z);
                 break;   
             }
             
-            
+                      
             case DATA_TRANSM2:
             {
                 
@@ -381,7 +396,7 @@ int main(void)
                             float k = value.un.gameRotationVector.k;
                             float r = value.un.gameRotationVector.real;
                             
-                            printDataToStr(i,j,k);
+                            //printDataToStr(i,j,k);
                             //sprintf(str, "%.2f,%.2f,%.2f,%.2f\n", i, j, k, r);
                             
                             //value.un.linearAcceleration
