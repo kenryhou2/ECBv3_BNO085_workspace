@@ -41,23 +41,15 @@ uint8_t count;                     //Used in DATATRANSM2
 uint8 buffer[USBUART_BUFFER_SIZE]; //used for USBUART in DATATRANSM2
 sh2_Hal_t *pSh2Hal;
 sh2_ProductIds_t prodIds;           //Used for getting product ID in Sh2_getProdID().           
-sh2_SensorEvent_t sensor_events[3];
-float transmitBuf[10];  
 
 //Debugging constants
 int interruptval = 1;
 volatile int status;                //Every sh2 function returns an int. Values specified in Sh2_err.h
 static char str [64];
-volatile uint32_t time_now = 0;
-volatile uint32_t time_old = 0;
-
-volatile uint32_t time_now1 = 0;
-volatile uint32_t time_old1 = 0;
-volatile int acceltick = 0;
-volatile int gyrotick = 0;
-volatile int gametick = 0;
-
-bool got_accel = 0, got_gyro = 0, got_rot = 0, update = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
+volatile uint32_t time1 = 0;
+volatile uint32_t time2 = 0;
+float transmitBuf[10];  
+bool got_accel = 0, got_gyro = 0, got_rot = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
@@ -161,6 +153,25 @@ void printGameRotVec(float i,float j,float k,float r)
     printOut(str);
 }
 
+void print10(float fa[10])
+{
+    float a,b,c,d,e,f,g,h,i,j;
+    char s0[32];
+    char s1[32];
+    char s2[32];
+    char s3[32];
+    char s4[32];
+    char s5[32];
+    char s6[32];
+    char s7[32];
+    char s8[32];
+    char s9[32];
+
+    sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s wx:%s, wy:%s, wz:%s\r\n",f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]),f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),f2cstring(s6,fa[6]),f2cstring(s7,fa[7]), f2cstring(s8,fa[8]),f2cstring(s9,fa[9]));
+    printOut(str);
+}
+
 void sendFloatArr(float i, float j, float k, float r)
 {
     transmitBuf[0] = i;
@@ -170,47 +181,13 @@ void sendFloatArr(float i, float j, float k, float r)
     USBUART_PutData((void *)transmitBuf, 16);
 }
 
-bool check_time(float hz)
-{
-    time_now = get_timestamp();
-    uint32_t diff = time_now - time_old;
-    
-    if (diff > (1000000/hz))
-    {
-        time_old = time_now;
-        return true;
-    }
-    return false;
-}
-
-int mark_time()
-{
-    int diff = 0;
-    time_now1 = get_timestamp();
-    if(time_old1 != 0)
-    {
-        diff = time_now1-time_old1;
-    }
-    time_old1 = time_now1;
-    return diff;
-}
 static int start_reports()
 {
     static sh2_SensorConfig_t config;
     int status;
     int sensorID;
     
-//    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};
-    //static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER};
-    static const int enabledSensors[] = 
-    {   //Henry: int list of enumerated sensors we want to use
-        SH2_GAME_ROTATION_VECTOR,
-        SH2_ACCELEROMETER,
-        SH2_GYROSCOPE_CALIBRATED
-//        SH2_LINEAR_ACCELERATION,
-//        SH2_ROTATION_VECTOR
-        //SH2_ARVR_STABILIZED_GRV
-    };
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};
     
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
@@ -222,8 +199,8 @@ static int start_reports()
 
     // Select a report interval.
     //config.reportInterval_us = 10000;  // microseconds (100Hz)
-    //config.reportInterval_us = 2500;   // microseconds (400Hz)
-    config.reportInterval_us = 1000;   // microseconds (1000Hz)
+    config.reportInterval_us = 2500;   // microseconds (400Hz)
+    // config.reportInterval_us = 1000;   // microseconds (1000Hz)
 
     for (unsigned int n = 0; n < ARRAY_LEN(enabledSensors); n++)
     {
@@ -238,73 +215,47 @@ static int start_reports()
     //return status;
 }
 
-static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){ //*pEvent is te address of the event variable.
-    //sensor_event = *pEvent; //now sensor_event holds the address of the passed in event.
-    //sh2_SensorValue_t value;
-    //status = sh2_decodeSensorEvent(&value, pEvent); //decode Sensor Event places the values within event into the datatype value.
-    //sensor_event fluctuates type of data it is outputting randomly. Use flddggags to detect when certain sensor is selected.
-    //volatile uint8_t sensormode = value.sensorId; 
-    
-    if (pEvent->reportId == SH2_GAME_ROTATION_VECTOR)
-    {
-        got_rot = 1;
-        update = 1;
-        sensor_events[0] = *pEvent;
-        return;
-    }
-    if (pEvent->reportId == SH2_ACCELEROMETER)
-    {
-        got_accel = 1;
-        update = 1;
-        sensor_events[1] = *pEvent;
-        return;
-    }
-    if (pEvent->reportId == SH2_CAL_GYRO)
-    {
-        got_gyro = 1;
-        update = 1;
-        sensor_events[2] = *pEvent;
-        return;
-    }
-//    switch(pEvent->reportId)
-//    //switch(sensor_event->reportId)
-//        {
-//            case SH2_GAME_ROTATION_VECTOR:                  //detection of the event being for a certain sensor.
-//            {
-//                got_rot = 1;
-//                //transmitBuf[0] = value.un.gameRotationVector.i;
-//                //transmitBuf[1] = value.un.gameRotationVector.j;
-//                //transmitBuf[2] = value.un.gameRotationVector.k;
-//                //transmitBuf[3] = value.un.gameRotationVector.real;
-//                //gametick = mark_time();
-//                sensor_events[0] = *pEvent;
-//                break;
-//            }
-//            case SH2_ACCELEROMETER:
-//            {
-//                got_accel = 1;
-//                //transmitBuf[4] = value.un.accelerometer.x; 
-//                //transmitBuf[5] = value.un.accelerometer.y; 
-//                //transmitBuf[6] = value.un.accelerometer.z;
-//                //acceltick = mark_time();
-//                sensor_events[1] = *pEvent;
-//                break;
-//            }
-//            case SH2_CAL_GYRO:
-//            {
-//                got_gyro = 1;
-//                //transmitBuf[7] = value.un.gyroscope.x; 
-//                //transmitBuf[8] = value.un.gyroscope.y; 
-//                //transmitBuf[9] = value.un.gyroscope.z;
-//                //gyrotick = mark_time();
-//                sensor_events[2] = *pEvent;
-//                break;
-//                
-//            }
-//            default:
-//            { return; }
-//        }
-
+static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
+    sensor_event = *pEvent;
+    sh2_SensorValue_t value;
+        status = sh2_decodeSensorEvent(&value, &sensor_event); //sensor_event fluctuates type of data it is outputting randomly. Use flags to detect when certain sensor is selected.
+        
+        switch(sensor_event.reportId)
+        {
+            case SH2_GAME_ROTATION_VECTOR:                  //detection of the event being for a certain sensor.
+            {
+                got_rot = 1;
+                transmitBuf[0] = value.un.gameRotationVector.i;
+                transmitBuf[1] = value.un.gameRotationVector.j;
+                transmitBuf[2] = value.un.gameRotationVector.k;
+                transmitBuf[3] = value.un.gameRotationVector.real;
+                break;
+            }
+            case SH2_ACCELEROMETER:
+            {
+                got_accel = 1;
+                transmitBuf[4] = value.un.accelerometer.x; 
+                transmitBuf[5] = value.un.accelerometer.y; 
+                transmitBuf[6] = value.un.accelerometer.z;
+                break;
+            }
+            case SH2_CAL_GYRO:
+            {
+                got_gyro = 1;
+                transmitBuf[7] = value.un.gyroscope.x; 
+                transmitBuf[8] = value.un.gyroscope.y; 
+                transmitBuf[9] = value.un.gyroscope.z;
+                break;
+            }
+        }
+        
+        if (got_accel && got_gyro && got_rot)
+        {
+            #ifdef  USBUART_MODE
+            USBUART_PutData(( void *)transmitBuf,40);
+            print10(transmitBuf);
+            #endif
+        }
     return;
 }
 
@@ -433,53 +384,12 @@ int main(void)
 	
     /****LOOP****/
     
-    volatile int ti = get_timestamp();
     for(;;)
     {
-            //ti = get_timestamp();
         sh2_service();
         
-        if (got_accel && got_gyro && got_rot && update) //used to void garbage values.
-//        if (got_accel || got_gyro || got_rot) //used to void garbage values.
-        {
-            volatile int tick = get_timestamp() - ti;
-            
-            sh2_SensorValue_t accel_val, gyro_val, rot_val;
-            status = sh2_decodeSensorEvent(&rot_val, &sensor_events[0]); //decode Sensor Event places the values within event into the datatype value.
-            status = sh2_decodeSensorEvent(&accel_val, &sensor_events[1]); //decode Sensor Event places the values within event into the datatype value.
-            status = sh2_decodeSensorEvent(&gyro_val, &sensor_events[2]); //decode Sensor Event places the values within event into the datatype value.
-            transmitBuf[0] = rot_val.un.gameRotationVector.i;
-            transmitBuf[1] = rot_val.un.gameRotationVector.j;
-            transmitBuf[2] = rot_val.un.gameRotationVector.k;
-            transmitBuf[3] = rot_val.un.gameRotationVector.real;
-            transmitBuf[4] = accel_val.un.accelerometer.x;
-            transmitBuf[5] = accel_val.un.accelerometer.y;
-            transmitBuf[6] = accel_val.un.accelerometer.z;
-            transmitBuf[7] = gyro_val.un.gyroscope.x;
-            transmitBuf[8] = gyro_val.un.gyroscope.y;
-            transmitBuf[9] = gyro_val.un.gyroscope.z;
-
-//            got_accel = 0;
-//            got_gyro = 0;
-//            got_rot = 0;
-            update = 0;
-            //printOut(""); //mock print during debugging
-            ti = get_timestamp();
-        #ifdef  USBUART_MODE
-            USBUART_PutData(( void *)transmitBuf,40);
-//            int t = mark_time();
-//            time_now = get_timestamp();
-//            uint32_t diff = time_now - time_old;
-//            
-//            if (diff > (1000000/ 10000.0))
-//            {
-//                USBUART_PutData(( void *)transmitBuf,40);
-//                time_old = time_now;
-//            }
-        #endif
-        }
     } //End For loop
 } //end Main
 
-
+    
 /* [] END OF FILE */

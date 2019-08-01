@@ -780,7 +780,7 @@ void shtp_service(void *pInstance)
         }
     }
 
-    int len = pShtp->pHal->read(pShtp->pHal, pShtp->inTransfer, sizeof(pShtp->inTransfer), &t_us);
+    volatile int len = pShtp->pHal->read(pShtp->pHal, pShtp->inTransfer, sizeof(pShtp->inTransfer), &t_us);
     if (len) {
         //record how many times we go in here for our initial sh2_open()
         rxAssemble(pShtp, pShtp->inTransfer, len, t_us);
