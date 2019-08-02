@@ -199,8 +199,8 @@ static int start_reports()
 
     // Select a report interval.
     //config.reportInterval_us = 10000;  // microseconds (100Hz)
-    config.reportInterval_us = 2500;   // microseconds (400Hz)
-    // config.reportInterval_us = 1000;   // microseconds (1000Hz)
+    //config.reportInterval_us = 2500;   // microseconds (400Hz)
+    config.reportInterval_us = 1000;   // microseconds (1000Hz)
 
     for (unsigned int n = 0; n < ARRAY_LEN(enabledSensors); n++)
     {
@@ -254,6 +254,9 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             #ifdef  USBUART_MODE
             USBUART_PutData(( void *)transmitBuf,40);
             print10(transmitBuf);
+            got_accel = 0;
+            got_gyro = 0;
+            got_rot = 0;
             #endif
         }
     return;
