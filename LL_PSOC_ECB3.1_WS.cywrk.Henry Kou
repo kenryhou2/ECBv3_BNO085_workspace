@@ -1057,11 +1057,8 @@
 </CyGuid_fdba8dfd-b15b-4469-9bbb-9e40c3e70997>
 <Unloaded />
 <OpenDocs>
-<name v=".\P02_Blink_LED_Bootloadable.cydsn\main.c" />
-<name v=".\P01_Bootloader.cydsn\TopDesign\TopDesign.cysch" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\main.c" />
 <name v=".\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" />
-<name v=".\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" />
-<name v=".\P01_Bootloader.cydsn\P01_Bootloader.cydwr" />
 </OpenDocs>
 <OpenDocsLayout><![CDATA[<?xml version="1.0"?><!--
 
@@ -1069,7 +1066,7 @@
   Copyright (c) 2001-2016 Actipro Software LLC.  All rights reserved.
   http://www.actiprosoftware.com
 
---><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="973, 467" SelectedTabbedMdiWindow="f332f79d-d449-404f-92c8-1bc1dcb84abe"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P02_Blink_LED_Bootloadable.cydsn\main.c" Guid="f332f79d-d449-404f-92c8-1bc1dcb84abe" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P01_Bootloader.cydsn\TopDesign\TopDesign.cysch" Guid="82857f24-7f69-4cb0-9762-a9325dbfdccb" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="c77b6f64-e61f-4d4c-ab55-d28d3e7d7c48" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cydwr" Guid="48956cce-92cf-4fff-981f-557cd61dee62" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P01_Bootloader.cydsn\P01_Bootloader.cydwr" Guid="05d0811e-41ff-45d1-90f5-b9056911f25d" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
+--><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="973, 442" SelectedTabbedMdiWindow="614ee8a7-e9bc-4514-8cc0-aed5cd2987b8"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="614ee8a7-e9bc-4514-8cc0-aed5cd2987b8" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="7e27035d-6d83-4eb1-9ef5-a44fe194eb93" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
 <config v="" />
 <AutoUpdate v="true" />
 </CyGuid_843a90a4-0c4b-4e44-991d-05e7fb117a21>
