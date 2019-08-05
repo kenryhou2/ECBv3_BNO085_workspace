@@ -16,7 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 #define BUZZER_TIMER_CLK 8000000
 #define USBFS_DEVICE    (0u)
 
@@ -252,7 +252,9 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
         if (got_accel && got_gyro && got_rot)
         {
             #ifdef  USBUART_MODE
+            #ifdef DATA_OUTPUT_MODE    
             USBUART_PutData(( void *)transmitBuf,40);
+            #endif
             print10(transmitBuf);
             got_accel = 0;
             got_gyro = 0;
