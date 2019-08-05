@@ -49,9 +49,7 @@ static char str [64];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
 float transmitBuf[10];  
-bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
-uint8_t accuracy = 0;
-uint32_t accCount = 0;
+bool got_accel = 0, got_gyro = 0, got_rot = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
@@ -189,9 +187,8 @@ static int start_reports()
     int status;
     int sensorID;
     
-    //static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED};
-    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_MAGNETIC_FIELD_CALIBRATED};
-        
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};
+    
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
     config.changeSensitivityRelative = false;
@@ -242,27 +239,12 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 transmitBuf[6] = value.un.accelerometer.z;
                 break;
             }
-            case SH2_GYROSCOPE_CALIBRATED:
+            case SH2_CAL_GYRO:
             {
                 got_gyro = 1;
                 transmitBuf[7] = value.un.gyroscope.x; 
                 transmitBuf[8] = value.un.gyroscope.y; 
                 transmitBuf[9] = value.un.gyroscope.z;
-                break;
-            }
-            case SH2_MAGNETIC_FIELD_CALIBRATED:                  //detection of the event being for a certain sensor.
-            {
-                got_mag = 1;
-                
-                accuracy = (sensor_event.report[2] & 0x03); //extract the bits in index 1:0 for status.
-                if(accuracy == 3)
-                {
-                    accCount ++;    
-                }
-                else
-                    accCount = 0;
-                sprintf(str, "mag field status: %u count: %u\r\n", accuracy, accCount);
-                printOut(str);
                 break;
             }
         }
@@ -347,23 +329,6 @@ static int reportProdIds(void)
     return status;
 }
 
-static int enableCal(bool calAccel, bool calGyro, bool calMag)
-{
-    volatile int status;
-    volatile int statusReturn;
-    uint8_t enabled = 0x0;
-    uint8_t a = 0, g = 0, m = 0;
-    if (calAccel)
-        a = SH2_CAL_ACCEL;
-    if (calGyro)
-        g = SH2_CAL_GYRO;
-    if(calMag)
-        m = SH2_CAL_MAG;    
-    status = sh2_setCalConfig(a | g | m);
-    statusReturn = sh2_getCalConfig(&enabled);
-    return status & statusReturn;
-}
-
 //Phase functions:
 /* Order of Operations for IMU to work
     1. If USBUART enabled, start our USBUART
@@ -421,20 +386,7 @@ int main(void)
     IMU_setup();                 //Initialize IMU using SH2 HAL
     start_reports();
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
-	bool calAccel = 1, calGyro = 1, calMag = 1;
-    status = enableCal(calAccel, calGyro, calMag);
-    while(accCount < 1000)
-    {
-        sh2_service();    
-    }
-    printOut("Broken out of loop");
-    status = sh2_saveDcdNow();
-    sprintf(str, "%d\r\n", status);
-    printOut(str);
-    while(1)
-    {
-        LED_R_Write(1);       
-    }
+	
     /****LOOP****/
     
     for(;;)
