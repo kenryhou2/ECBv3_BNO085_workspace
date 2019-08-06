@@ -17,6 +17,7 @@
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
 //#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+#define CALIBRATION_MODE
 #define BUZZER_TIMER_CLK 8000000
 #define USBFS_DEVICE    (0u)
 
@@ -49,8 +50,8 @@ static char str [64];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
 float transmitBuf[10];  
-bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
-uint8_t accuracy = 0;
+bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag = 0, got_rotation = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
+uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0, rotaAccuracy = 0;
 uint32_t accCount = 0;
 
 //FLAGS
@@ -188,10 +189,13 @@ static int start_reports()
     static sh2_SensorConfig_t config;
     int status;
     int sensorID;
-    
-    //static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED};
-    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_MAGNETIC_FIELD_CALIBRATED};
-        
+    #ifndef CALIBRATION_MODE
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED};
+    #endif
+    #ifdef CALIBRATION_MODE
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED,SH2_ROTATION_VECTOR, SH2_MAGNETIC_FIELD_CALIBRATED};
+    #endif
+    config.changeSensitivityEnabled = false;
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
     config.changeSensitivityRelative = false;
@@ -232,6 +236,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 transmitBuf[1] = value.un.gameRotationVector.j;
                 transmitBuf[2] = value.un.gameRotationVector.k;
                 transmitBuf[3] = value.un.gameRotationVector.real;
+                gameAccuracy = (sensor_event.report[2] & 0x03);
                 break;
             }
             case SH2_ACCELEROMETER:
@@ -240,6 +245,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 transmitBuf[4] = value.un.accelerometer.x; 
                 transmitBuf[5] = value.un.accelerometer.y; 
                 transmitBuf[6] = value.un.accelerometer.z;
+                accelAccuracy = (sensor_event.report[2] & 0x03);
                 break;
             }
             case SH2_GYROSCOPE_CALIBRATED:
@@ -248,25 +254,27 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 transmitBuf[7] = value.un.gyroscope.x; 
                 transmitBuf[8] = value.un.gyroscope.y; 
                 transmitBuf[9] = value.un.gyroscope.z;
+                gyroAccuracy = (sensor_event.report[2] & 0x03);   
                 break;
             }
+            #ifdef CALIBRATION_MODE
             case SH2_MAGNETIC_FIELD_CALIBRATED:                  //detection of the event being for a certain sensor.
             {
                 got_mag = 1;
-                
-                accuracy = (sensor_event.report[2] & 0x03); //extract the bits in index 1:0 for status.
-                if(accuracy == 3)
-                {
-                    accCount ++;    
-                }
-                else
-                    accCount = 0;
-                sprintf(str, "mag field status: %u count: %u\r\n", accuracy, accCount);
-                printOut(str);
+                magAccuracy = (sensor_event.report[2] & 0x03); //extract the bits in index 1:0 for status.
                 break;
             }
+            
+            case SH2_ROTATION_VECTOR:
+            {
+                got_rotation = 1;
+                
+                rotaAccuracy = (sensor_event.report[2] & 0x03);            
+                break;
+            }
+            #endif
         }
-        
+        #ifndef CALIBRATION_MODE
         if (got_accel && got_gyro && got_rot)
         {
             #ifdef  USBUART_MODE
@@ -279,6 +287,21 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             got_rot = 0;
             #endif
         }
+        #endif
+        #ifdef CALIBRATION_MODE
+        if (got_accel && got_gyro && got_rot && got_mag && got_rotation)
+        {
+            if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2 && magAccuracy == 3 && rotaAccuracy >= 2)
+            {
+                accCount ++;    
+            }
+            else
+                accCount = 0;
+            sprintf(str, "game:%u gyro:%u accel:%u mag:%u rotation:%u count:%u\r\n", gameAccuracy, gyroAccuracy,accelAccuracy,magAccuracy,rotaAccuracy, accCount);
+            printOut(str);  
+        }
+        #endif
+         
     return;
 }
 
@@ -363,6 +386,22 @@ static int enableCal(bool calAccel, bool calGyro, bool calMag)
     statusReturn = sh2_getCalConfig(&enabled);
     return status & statusReturn;
 }
+void calibrateIMU(bool calAccel, bool calGyro, bool calMag)
+{
+    status = enableCal(calAccel, calGyro, calMag);
+    while(accCount < 4000)
+    {
+        sh2_service();    
+    }
+    printOut("Calibration Done");
+    status = sh2_saveDcdNow();
+    sprintf(str, "save DCD status:%d\r\n", status);
+    printOut(str);
+    while(1)
+    {
+        LED_R_Write(1);       
+    }    
+}
 
 //Phase functions:
 /* Order of Operations for IMU to work
@@ -421,20 +460,11 @@ int main(void)
     IMU_setup();                 //Initialize IMU using SH2 HAL
     start_reports();
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
-	bool calAccel = 1, calGyro = 1, calMag = 1;
-    status = enableCal(calAccel, calGyro, calMag);
-    while(accCount < 1000)
-    {
-        sh2_service();    
-    }
-    printOut("Broken out of loop");
-    status = sh2_saveDcdNow();
-    sprintf(str, "%d\r\n", status);
-    printOut(str);
-    while(1)
-    {
-        LED_R_Write(1);       
-    }
+	#ifdef CALIBRATION_MODE
+    bool calAccel = 1, calGyro = 1, calMag = 1;
+    calibrateIMU(calAccel,calGyro,calMag);
+    #endif
+    
     /****LOOP****/
     
     for(;;)
