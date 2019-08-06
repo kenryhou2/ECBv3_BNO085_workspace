@@ -509,7 +509,7 @@
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\stdlogic\mod_genv.vif</v>
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\stdlogic\rtlpkg.vif</v>
 </warp_dep>
-<deps_time v="132095156538507621" />
+<deps_time v="132095925563448532" />
 <top_block v="TopDesign" />
 <last_generation v="0" />
 <pdl_path v="" />
@@ -527,8 +527,6 @@
 <dep name=".\CortexM3\ARM_GCC_541\library\hillcrestlabs-sh2\sh2_hal.h" />
 <dep name=".\Generated_Source\PSoC5\BUZZER.h" />
 <dep name=".\Generated_Source\PSoC5\BUZZER_aliases.h" />
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON.h" />
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON_aliases.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_1.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_2.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_3.h" />
@@ -601,8 +599,6 @@
 <file name=".\CortexM3\ARM_GCC_541\library\hillcrestlabs-sh2\sh2_hal.h" />
 <file name=".\Generated_Source\PSoC5\BUZZER.h" />
 <file name=".\Generated_Source\PSoC5\BUZZER_aliases.h" />
-<file name=".\Generated_Source\PSoC5\CAL_BUTTON.h" />
-<file name=".\Generated_Source\PSoC5\CAL_BUTTON_aliases.h" />
 <file name=".\Generated_Source\PSoC5\Clock_1.h" />
 <file name=".\Generated_Source\PSoC5\Clock_2.h" />
 <file name=".\Generated_Source\PSoC5\Clock_3.h" />
@@ -693,8 +689,6 @@
 <dep name=".\CortexM3\ARM_GCC_541\library\hillcrestlabs-sh2\sh2_hal.h" />
 <dep name=".\Generated_Source\PSoC5\BUZZER.h" />
 <dep name=".\Generated_Source\PSoC5\BUZZER_aliases.h" />
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON.h" />
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON_aliases.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_1.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_2.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_3.h" />
@@ -778,17 +772,6 @@
 <dep name=".\Generated_Source\PSoC5\cytypes.h" />
 </file>
 <file name=".\Generated_Source\PSoC5\BUZZER.c" />
-<file name=".\CortexM3\ARM_GCC_541\Debug\CAL_BUTTON.o">
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON.c" />
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON.h" />
-<dep name=".\Generated_Source\PSoC5\CAL_BUTTON_aliases.h" />
-<dep name=".\Generated_Source\PSoC5\cydevice.h" />
-<dep name=".\Generated_Source\PSoC5\cydevice_trm.h" />
-<dep name=".\Generated_Source\PSoC5\cyfitter.h" />
-<dep name=".\Generated_Source\PSoC5\cypins.h" />
-<dep name=".\Generated_Source\PSoC5\cytypes.h" />
-</file>
-<file name=".\Generated_Source\PSoC5\CAL_BUTTON.c" />
 <file name=".\CortexM3\ARM_GCC_541\Debug\Clock_1.o">
 <dep name=".\Generated_Source\PSoC5\Clock_1.c" />
 <dep name=".\Generated_Source\PSoC5\Clock_1.h" />
@@ -1606,6 +1589,19 @@
 <file name=".\Generated_Source\PSoC5\cydevicegnu.inc" />
 <file name=".\Generated_Source\PSoC5\cydevicegnu_trm.inc" />
 <file name=".\Generated_Source\PSoC5\cyfittergnu.inc" />
+<file name=".\Generated_Source\PSoC5\CAL_BUTTON.h" />
+<file name=".\Generated_Source\PSoC5\CAL_BUTTON_aliases.h" />
+<file name=".\CortexM3\ARM_GCC_541\Debug\CAL_BUTTON.o">
+<dep name=".\Generated_Source\PSoC5\CAL_BUTTON.c" />
+<dep name=".\Generated_Source\PSoC5\CAL_BUTTON.h" />
+<dep name=".\Generated_Source\PSoC5\CAL_BUTTON_aliases.h" />
+<dep name=".\Generated_Source\PSoC5\cydevice.h" />
+<dep name=".\Generated_Source\PSoC5\cydevice_trm.h" />
+<dep name=".\Generated_Source\PSoC5\cyfitter.h" />
+<dep name=".\Generated_Source\PSoC5\cypins.h" />
+<dep name=".\Generated_Source\PSoC5\cytypes.h" />
+</file>
+<file name=".\Generated_Source\PSoC5\CAL_BUTTON.c" />
 <file name=".\CortexM3\ARM_GCC_541\Debug\Bootloadable.o">
 <dep name=".\Generated_Source\PSoC5\Bootloadable.c" />
 <dep name=".\Generated_Source\PSoC5\Bootloadable.h" />
@@ -1705,7 +1701,6 @@
 <dep name=".\CortexM3\ARM_GCC_541\Debug\cyutils.o" />
 <dep name=".\CortexM3\ARM_GCC_541\Debug\IMU_RST.o" />
 <dep name=".\CortexM3\ARM_GCC_541\Debug\IMU_ISR_INT.o" />
-<dep name=".\CortexM3\ARM_GCC_541\Debug\CAL_BUTTON.o" />
 <dep name=".\CortexM3\ARM_GCC_541\Debug\P06_IMU_BNO085_WIP.a" />
 <dep name="${CyRoot}\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CortexM3\ARM_GCC_541\Debug\CyComponentLibrary.a" />
 </file>
@@ -1793,7 +1788,7 @@
 <dataGuid v="769d31ea-68b1-4f0c-b90a-7c10a43ee563">
 <CyGuid_769d31ea-68b1-4f0c-b90a-7c10a43ee563 type_name="CyDesigner.Common.ProjMgmt.Model.CyLinkCustomData" version="1">
 <link_deps_times>
-<name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM3" v="132095817127715785" />
+<name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM3" v="132095943637955258" />
 </link_deps_times>
 </CyGuid_769d31ea-68b1-4f0c-b90a-7c10a43ee563>
 </dataGuid>
@@ -1861,8 +1856,6 @@
 <CyGuid_504337dd-7d07-4bc7-9057-90e60cf6c469 type_name="CyDesigner.Common.Debugger.CyBreakpointList" version="1">
 <debugger_breakpoint_list>
 <CyGuid_76464711-0ae1-4583-b869-f07a0403fc6e type_name="CyDesigner.Common.Debugger.CyFileLineBreakpoint" version="1" hitcount="0" condition="" enabled="True" hardware="True" temparary="False" filename="..\library\hillcrestlabs-sh2\sh2.c" linenumber="1729" />
-<CyGuid_76464711-0ae1-4583-b869-f07a0403fc6e type_name="CyDesigner.Common.Debugger.CyFileLineBreakpoint" version="1" hitcount="0" condition="" enabled="True" hardware="True" temparary="False" filename=".\main.c" linenumber="225" />
-<CyGuid_76464711-0ae1-4583-b869-f07a0403fc6e type_name="CyDesigner.Common.Debugger.CyFileLineBreakpoint" version="1" hitcount="0" condition="" enabled="True" hardware="True" temparary="False" filename=".\main.c" linenumber="257" />
 </debugger_breakpoint_list>
 </CyGuid_504337dd-7d07-4bc7-9057-90e60cf6c469>
 </dataGuid>
