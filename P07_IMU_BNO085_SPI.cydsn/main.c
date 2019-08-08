@@ -16,8 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
-
+//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 #define BUZZER_TIMER_CLK 8000000
 #define USBFS_DEVICE    (0u)
 
@@ -46,14 +45,11 @@ sh2_ProductIds_t prodIds;           //Used for getting product ID in Sh2_getProd
 //Debugging constants
 int interruptval = 1;
 volatile int status;                //Every sh2 function returns an int. Values specified in Sh2_err.h
-static char str [128];
+static char str [64];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
 float transmitBuf[10];  
-bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag = 0, got_rotation = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
-uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0, rotaAccuracy = 0;
-uint32_t accCount = 0;
-bool cal = false;
+bool got_accel = 0, got_gyro = 0, got_rot = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
@@ -157,7 +153,7 @@ void printGameRotVec(float i,float j,float k,float r)
     printOut(str);
 }
 
-void print10(float fa[10], uint8_t game, uint8_t accel, uint8_t gyro)
+void print10(float fa[10])
 {
     float a,b,c,d,e,f,g,h,i,j;
     char s0[32];
@@ -170,17 +166,10 @@ void print10(float fa[10], uint8_t game, uint8_t accel, uint8_t gyro)
     char s7[32];
     char s8[32];
     char s9[32];
-    
-    sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s wx:%s, wy:%s, wz:%s",
-    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
-    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
-    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
-    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
-    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
-    );
+
+    sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s wx:%s, wy:%s, wz:%s\r\n",f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]),f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),f2cstring(s6,fa[6]),f2cstring(s7,fa[7]), f2cstring(s8,fa[8]),f2cstring(s9,fa[9]));
     printOut(str);
-    sprintf(str," game:%u accel:%u gyro:%u accCount:%u\r\n", game, accel, gyro, accCount);
-    printOut(str); //second printout of sensor accuracy bits and Count.
 }
 
 void sendFloatArr(float i, float j, float k, float r)
@@ -197,10 +186,9 @@ static int start_reports()
     static sh2_SensorConfig_t config;
     int status;
     int sensorID;
-
-    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED};
-
-    config.changeSensitivityEnabled = false;
+    
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_CAL_GYRO};
+    
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
     config.changeSensitivityRelative = false;
@@ -241,7 +229,6 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 transmitBuf[1] = value.un.gameRotationVector.j;
                 transmitBuf[2] = value.un.gameRotationVector.k;
                 transmitBuf[3] = value.un.gameRotationVector.real;
-                gameAccuracy = (sensor_event.report[2] & 0x03);
                 break;
             }
             case SH2_ACCELEROMETER:
@@ -250,34 +237,25 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 transmitBuf[4] = value.un.accelerometer.x; 
                 transmitBuf[5] = value.un.accelerometer.y; 
                 transmitBuf[6] = value.un.accelerometer.z;
-                accelAccuracy = (sensor_event.report[2] & 0x03);
                 break;
             }
-            case SH2_GYROSCOPE_CALIBRATED:
+            case SH2_CAL_GYRO:
             {
                 got_gyro = 1;
                 transmitBuf[7] = value.un.gyroscope.x; 
                 transmitBuf[8] = value.un.gyroscope.y; 
                 transmitBuf[9] = value.un.gyroscope.z;
-                gyroAccuracy = (sensor_event.report[2] & 0x03);   
                 break;
             }
         }
+        
         if (got_accel && got_gyro && got_rot)
         {
             #ifdef  USBUART_MODE
             #ifdef DATA_OUTPUT_MODE    
             USBUART_PutData(( void *)transmitBuf,40);
             #endif
-            print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
-            if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
-                accCount ++;    
-            else
-            {
-                cal = false;
-                accCount = 0;
-                LED_R_Write(0);
-            }
+            print10(transmitBuf);
             got_accel = 0;
             got_gyro = 0;
             got_rot = 0;
@@ -351,23 +329,6 @@ static int reportProdIds(void)
     return status;
 }
 
-static int enableCal(bool calAccel, bool calGyro, bool calMag)
-{
-    volatile int status;
-    volatile int statusReturn;
-    uint8_t enabled = 0x0;
-    uint8_t a = 0, g = 0, m = 0;
-    if (calAccel)
-        a = SH2_CAL_ACCEL;
-    if (calGyro)
-        g = SH2_CAL_GYRO;
-    if(calMag)
-        m = SH2_CAL_MAG;    
-    status = sh2_setCalConfig(a | g | m);
-    statusReturn = sh2_getCalConfig(&enabled);
-    return status & statusReturn;
-}
-
 //Phase functions:
 /* Order of Operations for IMU to work
     1. If USBUART enabled, start our USBUART
@@ -376,7 +337,7 @@ static int enableCal(bool calAccel, bool calGyro, bool calMag)
     4. Open our Sh2 object which sets up parameters from HAL to Sh2, and SHTP. 
     5. Enable our sensors and configure them for communication through reports. (with setSensorCallback, and start_reports)
        Now we can use SH2 functions to communicate with IMU. (functs such as Sh2_getProdID())
-    6. Repeatedly call Sh2_service which calls decode_Sensor_Event to repeatedly obtain data from IMU.
+    6. Repeatedly call Sh2_service and decode_Sensor_Event to repeatedly obtain data from IMU.
        Embedded system unable to print floats so need to convert them into s strings.
 */
 
@@ -425,23 +386,11 @@ int main(void)
     IMU_setup();                 //Initialize IMU using SH2 HAL
     start_reports();
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
-	bool calAccel = 1, calGyro = 1, calMag = 1;
-    status = enableCal(calAccel, calGyro, calMag);
-    while(status != 0)
-    {
-        
-    }    
+	
     /****LOOP****/
     
     for(;;)
     {
-        if(accCount >= 1000 && cal != true)
-        {
-            cal = true;
-            LED_R_Write(1);
-            printOut("IMU calibrated\r\n");
-            sh2_saveDcdNow();  
-        }
         sh2_service();
         
     } //End For loop

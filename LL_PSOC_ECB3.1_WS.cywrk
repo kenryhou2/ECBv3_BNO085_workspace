@@ -16,6 +16,7 @@
 <v>.\P04b_CAN_RX_Test.cydsn\P04b_CAN_RX_Test.cyprj</v>
 <v>.\P05_IMU_BNO085_Test.cydsn\P05_IMU_BNO085_Test.cyprj</v>
 <v>.\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cyprj</v>
+<v>.\P07_IMU_BNO085_SPI.cydsn\P07_IMU_BNO085_SPI.cyprj</v>
 </projects>
 <workspace_id v="7bb383c5-f4af-418e-b0b8-8563054e9a6e" />
 <WriteAppVersionLastSavedWith v="4.2.0.641" />
