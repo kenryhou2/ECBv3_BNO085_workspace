@@ -15,7 +15,7 @@
 #include <stdio.h> 
 
 /**********CONSTANT VALUES AND FLAGS*********/
-#define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
+//#define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
 #define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 
 #define BUZZER_TIMER_CLK 8000000
@@ -115,47 +115,6 @@ void testPrintFloats()
 }
 
 //Utility function for debugging
-void printAccel(float i, float j, float k)
-{
-    char s0[32];
-    char s1[32];
-    char s2[32];
-
-//    char s3[32];
-//    char s4[32];
-//    char s5[32];
-//    char s6[32];
-    //sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r),
-    //f2cstring(s4,x), f2cstring(s5,y), f2cstring(s6,z));
-    sprintf(str," x:%s y:%s z:%s",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
-    printOut(str);
-}
-
-void printGyro(float i, float j, float k)
-{
-    char s0[32];
-    char s1[32];
-    char s2[32];
-
-//    char s3[32];
-//    char s4[32];
-//    char s5[32];
-//    char s6[32];
-    //sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s\r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r),
-    //f2cstring(s4,x), f2cstring(s5,y), f2cstring(s6,z));
-    sprintf(str," x:%s y:%s z:%s \r\n",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k));
-    printOut(str);
-}
-
-void printGameRotVec(float i,float j,float k,float r)
-{
-    char s0[32];
-    char s1[32];
-    char s2[32];
-    char s3[32];
-    sprintf(str,"i:%s j:%s k:%s r:%s",f2cstring(s0,i),f2cstring(s1,j),f2cstring(s2,k),f2cstring(s3,r));
-    printOut(str);
-}
 
 void print10(float fa[10], uint8_t game, uint8_t accel, uint8_t gyro)
 {
@@ -181,15 +140,6 @@ void print10(float fa[10], uint8_t game, uint8_t accel, uint8_t gyro)
     printOut(str);
     sprintf(str," game:%u accel:%u gyro:%u accCount:%u\r\n", game, accel, gyro, accCount);
     printOut(str); //second printout of sensor accuracy bits and Count.
-}
-
-void sendFloatArr(float i, float j, float k, float r)
-{
-    transmitBuf[0] = i;
-    transmitBuf[1] = j;
-    transmitBuf[2] = k;
-    transmitBuf[3] = r;
-    USBUART_PutData((void *)transmitBuf, 16);
 }
 
 static int start_reports()
@@ -278,10 +228,11 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 accCount = 0;
                 LED_R_Write(0);
             }
+            
+            #endif
             got_accel = 0;
             got_gyro = 0;
             got_rot = 0;
-            #endif
         }
     return;
 }
@@ -423,6 +374,7 @@ int main(void)
     
     printOut("****INITIALIZATION START****\r\n");
     IMU_setup();                 //Initialize IMU using SH2 HAL
+    
     start_reports();
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
 	bool calAccel = 1, calGyro = 1, calMag = 1;
@@ -444,6 +396,7 @@ int main(void)
         }
         sh2_service();
         
+        volatile int debugvar = 0;
     } //End For loop
 } //end Main
 

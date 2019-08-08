@@ -75,7 +75,7 @@ CY_ISR(TIMER_ISR_HANDLER){
 uint32_t get_timestamp()
 {
     uint32_t raw_timer_total_time = current_time + (uint32_t)TIMER_US_ReadCounter(); //What if get_timestamp in between periods?
-    return (raw_timer_total_time/29); //Dependent on the BUS CLK speed.
+    return (raw_timer_total_time/24); //Dependent on the BUS CLK speed.
     // the raw_timer_total_time value is based on clock speed of the Timer. Conversion: 24 raw clocks roughly equal to one us.
 }
 
@@ -147,11 +147,12 @@ void test_TimerUs() //For debugging. IMU should be taking measurements in us.
     printOut("Test Timer\r\n");
     volatile uint32_t time1 = 0;
     volatile uint32_t time2 = 0;
-    CyDelay(10);
-    time1 = get_timestamp();    
-    CyDelayUs(1000); //~24,000 clocks for 1 millisecond ~ 1000 microsecond (us). 
+    LED_R_Write(1);
+    time1 = get_timestamp();
+    CyDelay(5000); //~24,000 clocks for 1 millisecond ~ 1000 microsecond (us). 
                      //~29 clocks for one microsecond.
-    time2 = get_timestamp(); 
+    time2 = get_timestamp(); //note CyDelay is inaccurate after time more than 1 second.... but Time stamps should be correct.
+    LED_R_Write(0);
     sprintf(str,"time1: %u time2: %u\r\n",time1,time2);
     printOut(str); //Difference in the two times should be 1000 with time2 being the later time.
 }
