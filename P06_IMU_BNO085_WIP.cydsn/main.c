@@ -15,8 +15,10 @@
 #include <stdio.h> 
 
 /**********CONSTANT VALUES AND FLAGS*********/
-//#define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+#define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
+//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+//#define CALIBRATE_MAG_MODE
+
 
 #define BUZZER_TIMER_CLK 8000000
 #define USBFS_DEVICE    (0u)
@@ -50,9 +52,10 @@ static char str [128];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
 float transmitBuf[10];  
-bool got_accel = 0, got_gyro = 0, got_rot = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
-uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0;
+bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag; //Flags to detect when sensor_event activates a certain sensor to receive data from
+uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0;
 uint32_t accCount = 0;
+volatile uint32_t tdf;
 bool cal = false;
 
 //FLAGS
@@ -126,7 +129,12 @@ uint32_t getTdiff()
 
 //Utility function for debugging
 
-void print10(float fa[10], uint8_t game, uint8_t accel, uint8_t gyro)
+#ifdef CALIBRATE_MAG_MODE
+void print10(float fa[10], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc, uint8_t magAcc)
+#endif
+#ifndef CALIBRATE_MAG_MODE
+void print10(float fa[10], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc)
+#endif
 {
     float a,b,c,d,e,f,g,h,i,j;
     char s0[32];
@@ -140,16 +148,26 @@ void print10(float fa[10], uint8_t game, uint8_t accel, uint8_t gyro)
     char s8[32];
     char s9[32];
     
-    sprintf(str,"i:%s j:%s k:%s r:%s x:%s y:%s z:%s wx:%s, wy:%s, wz:%s",
-    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
-    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
-    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
-    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
-    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
+//    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n",
+//    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+//    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
+//    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
+//    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
+//    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
+//    );
+    sprintf(str,"%s\t%s\t%s\t%s\r\n",
+    f2cstring(s0,fa[0]*10),f2cstring(s1,fa[1]*10),
+    f2cstring(s2,fa[2]*10),f2cstring(s3,fa[3]*10)
     );
     printOut(str);
-    sprintf(str," game:%u accel:%u gyro:%u accCount:%u\r\n", game, accel, gyro, accCount);
-    printOut(str); //second printout of sensor accuracy bits and Count.
+    
+//    #ifdef CALIBRATE_MAG_MODE
+//    sprintf(str," game:%u accel:%u gyro:%u mag:%u accCount:%u\r\n", gameAcc, accelAcc, gyroAcc, magAcc,accCount);
+//    #endif
+//    #ifndef CALIBRATE_MAG_MODE
+//    sprintf(str," game:%u accel:%u gyro:%u mag:%u accCount:%u\r\n", gameAcc, accelAcc, gyroAcc,accCount);    
+//    #endif
+//    printOut(str); //second printout of sensor accuracy bits and Count.
 }
 
 static int start_reports()
@@ -157,9 +175,13 @@ static int start_reports()
     static sh2_SensorConfig_t config;
     int status;
     int sensorID;
-
+    
+    #ifndef CALIBRATE_MAG_MODE
     static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED};
-
+    #endif
+    #ifdef CALIBRATE_MAG_MODE
+    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED, SH2_MAGNETIC_FIELD_CALIBRATED};
+    #endif
     config.changeSensitivityEnabled = false;
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
@@ -222,7 +244,38 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 gyroAccuracy = (sensor_event.report[2] & 0x03);   
                 break;
             }
+            case SH2_MAGNETIC_FIELD_CALIBRATED:
+            {
+                got_mag = 1;
+                magAccuracy = (sensor_event.report[2] & 0x03);
+            }
         }
+        #ifdef CALIBRATE_MAG_MODE
+        if (got_accel && got_gyro && got_rot && got_mag)
+        {
+            #ifdef  USBUART_MODE
+            #ifdef DATA_OUTPUT_MODE    
+            USBUART_PutData(( void *)transmitBuf,40);
+            #endif
+            print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy, magAccuracy);
+            if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2 && magAccuracy >=2)
+                accCount ++;    
+            else
+            {
+                cal = false;
+                accCount = 0;
+                LED_R_Write(0);
+            }
+            
+            #endif
+            got_accel = 0;
+            got_gyro = 0;
+            got_rot = 0;
+            got_mag = 0;
+        }
+        #endif
+        
+        #ifndef CALIBRATE_MAG_MODE
         if (got_accel && got_gyro && got_rot)
         {
             #ifdef  USBUART_MODE
@@ -238,12 +291,13 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 accCount = 0;
                 LED_R_Write(0);
             }
-            
             #endif
+            tdf = getTdiff();
             got_accel = 0;
             got_gyro = 0;
             got_rot = 0;
         }
+        #endif
     return;
 }
 
@@ -405,8 +459,6 @@ int main(void)
             sh2_saveDcdNow();  
         }
         sh2_service();
-        volatile uint32_t tdf = getTdiff();
-        volatile int debugvar = 0;
     } //End For loop
 } //end Main
 
