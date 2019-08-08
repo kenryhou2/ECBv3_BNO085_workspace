@@ -50,8 +50,8 @@ static char str [128];
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
 float transmitBuf[10];  
-bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag = 0, got_rotation = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
-uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0, rotaAccuracy = 0;
+bool got_accel = 0, got_gyro = 0, got_rot = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
+uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0;
 uint32_t accCount = 0;
 bool cal = false;
 
@@ -112,6 +112,16 @@ void testPrintFloats()
     float f2 = -3.1415999;
     sprintf(str,"pi: %s, neg pi: %s\r\n",f2cstring(s,f),f2cstring(s2,f2));
     printOut(str);
+}
+
+uint32_t getTdiff()
+{
+    uint32_t tdiff = 0;
+    time2 = get_timestamp();
+    
+    tdiff = time2 - time1;
+    time1 = time2;
+    return tdiff;
 }
 
 //Utility function for debugging
@@ -395,7 +405,7 @@ int main(void)
             sh2_saveDcdNow();  
         }
         sh2_service();
-        
+        volatile uint32_t tdf = getTdiff();
         volatile int debugvar = 0;
     } //End For loop
 } //end Main
