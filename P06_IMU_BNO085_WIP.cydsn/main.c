@@ -16,7 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 //#define CALIBRATE_MAG_MODE
 
 
@@ -43,7 +43,8 @@ uint16 buzzer_chirp_dir = 1;
 uint8_t count;                     //Used in DATATRANSM2
 uint8 buffer[USBUART_BUFFER_SIZE]; //used for USBUART in DATATRANSM2
 sh2_Hal_t *pSh2Hal;
-sh2_ProductIds_t prodIds;           //Used for getting product ID in Sh2_getProdID().           
+sh2_ProductIds_t prodIds;           //Used for getting product ID in Sh2_getProdID().    
+sh2_SensorValue_t value;
 
 //Debugging constants
 int interruptval = 1;
@@ -148,18 +149,22 @@ void print10(float fa[10], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc)
     char s8[32];
     char s9[32];
     
-//    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n",
-//    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
-//    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
-//    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
-//    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
-//    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
-//    );
-    sprintf(str,"%s\t%s\t%s\t%s\r\n",
-    f2cstring(s0,fa[0]*10),f2cstring(s1,fa[1]*10),
-    f2cstring(s2,fa[2]*10),f2cstring(s3,fa[3]*10)
+    sprintf(str,"i:%s\tj:%s\tk:%s\tr:%s\tx:%s\ty:%s\tz:%s\twx:%s\twy:%s\twz:%s\r\n",
+    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
+    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
+    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
+    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
     );
     printOut(str);
+    
+    //Printing for Arduino serial plotter
+//    sprintf(str,"%s\t%s\t%s\t%s\r\n",
+//    f2cstring(s0,fa[0]*10),f2cstring(s1,fa[1]),
+//    f2cstring(s2,fa[2]*10),f2cstring(s3,fa[3])
+//    );
+//    printOut(str);
+    //End printing for Arduino serial plotter.
     
 //    #ifdef CALIBRATE_MAG_MODE
 //    sprintf(str," game:%u accel:%u gyro:%u mag:%u accCount:%u\r\n", gameAcc, accelAcc, gyroAcc, magAcc,accCount);
@@ -209,9 +214,15 @@ static int start_reports()
     //return status;
 }
 
+//sh2_SensorEvent_t eventsBuff[200];
+//int eventsBuffindex = 0;
+
 static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
     sensor_event = *pEvent;
-    sh2_SensorValue_t value;
+    
+//    eventsBuff[eventsBuffindex] = sensor_event;
+//    eventsBuffindex++;
+//    
         status = sh2_decodeSensorEvent(&value, &sensor_event); //sensor_event fluctuates type of data it is outputting randomly. Use flags to detect when certain sensor is selected.
         
         switch(sensor_event.reportId)
@@ -277,10 +288,12 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
         
         #ifndef CALIBRATE_MAG_MODE
         if (got_accel && got_gyro && got_rot)
-        {
+        {         
+            TIMER_FIRING_PIN_Write(0);
             #ifdef  USBUART_MODE
             #ifdef DATA_OUTPUT_MODE    
             USBUART_PutData(( void *)transmitBuf,40);
+           
             #endif
             print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
             if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
@@ -292,6 +305,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
                 LED_R_Write(0);
             }
             #endif
+            TIMER_FIRING_PIN_Write(1);
             tdf = getTdiff();
             got_accel = 0;
             got_gyro = 0;
@@ -434,21 +448,33 @@ int main(void)
     USBUART_setup();             //Start USBUART start process
     PWM_LED_Start();             //Init debug LEDs and Buzzer... no audio though
     PWM_EN_Start();
-    PWM_BUZZER_Start();   
+    PWM_BUZZER_Start();
+    
+    TIMER_FIRING_PIN_Write(1);
+    CyDelay(10);
+    TIMER_FIRING_PIN_Write(0);
+    CyDelay(20);
+    TIMER_FIRING_PIN_Write(1);
+    CyDelay(10);
+    TIMER_FIRING_PIN_Write(0);
+    CyDelay(20);
+    TIMER_FIRING_PIN_Write(1);
+    //PWM_TIMER_FIRE_Start();
     
     printOut("****INITIALIZATION START****\r\n");
     IMU_setup();                 //Initialize IMU using SH2 HAL
-    
     start_reports();
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
-	bool calAccel = 1, calGyro = 1, calMag = 1;
+	
+    //PWM_TIMER_FIRE_Start();
+    bool calAccel = 1, calGyro = 1, calMag = 1;
     status = enableCal(calAccel, calGyro, calMag);
     while(status != 0)
     {
         
-    }    
+    }   
+    //PWM_TIMER_FIRE_Start();
     /****LOOP****/
-    
     for(;;)
     {
         if(accCount >= 1000 && cal != true)

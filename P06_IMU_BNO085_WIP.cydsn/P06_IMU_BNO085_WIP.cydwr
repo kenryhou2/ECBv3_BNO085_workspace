@@ -402,6 +402,7 @@
     <Group key="Pin">
       <Data key="02f2cf2c-2c7a-49df-9246-7a3435c21be3" value="IMU_SCL" />
       <Data key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba" value="KEY2" />
+      <Data key="50eba3b6-83dd-442a-a521-5b9dc037b233" value="TIMER_FIRING_PIN" />
       <Data key="609ed965-666d-4bd3-876a-1e71bce2a474" value="LED_G" />
       <Data key="622c04bf-a973-4fa8-8976-9d339b38c1d2" value="BUZZER" />
       <Data key="631d37e3-6cf7-4de9-8fe0-1d4224080162" value="KEY3" />
@@ -3507,6 +3508,11 @@
     <Group key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba">
       <Group key="0">
         <Data key="Port Format" value="6,1" />
+      </Group>
+    </Group>
+    <Group key="50eba3b6-83dd-442a-a521-5b9dc037b233">
+      <Group key="0">
+        <Data key="Port Format" value="12,0" />
       </Group>
     </Group>
     <Group key="609ed965-666d-4bd3-876a-1e71bce2a474">

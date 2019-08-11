@@ -40,6 +40,13 @@ enum BusState_e {
 enum BusState_e I2C_bus_state;
 static uint8_t attention_needed = 0;
 
+// HAL read variables (global for optimization)
+volatile uint16_t leng; //stores the length of the payload.
+volatile uint32_t result; //intermediate value for returing status of each I2C read.
+uint16_t r; //Used for calculating rem-len in length case 2.
+uint8_t rem_len; //the uint8_t version of r. converted for the I2C read parameter.
+uint8_t temp_buf[256] = {0};
+
 // Receive Buffer
 static uint8_t rx_buf[SH2_HAL_MAX_TRANSFER_IN];      // data receive buffer from IMU, max length 384
 static uint32_t rx_buf_len = 0;                      // valid bytes stored in rxBuf (0 when buf empty)
@@ -54,7 +61,7 @@ static uint8_t IMU_READY = 0;
 //Timer constants
 static uint32_t current_time = 0;
 volatile uint32_t rx_timestamp_us;            // timestamp of INTN event
-
+static uint32_t total_time = 0;
 extern int printOut(char str[64]);
 
 /* Time Keeping Code 
@@ -72,11 +79,18 @@ CY_ISR(TIMER_ISR_HANDLER){
     //STAMP_ISR_ClearPending();
 }
 
+//CY_ISR(TIMESTAMP_ISR_HANDLER)
+//{
+//    total_time++;
+//    TIMESTAMP_ISR_ClearPending();
+//}
+
 uint32_t get_timestamp()
 {
+    //return total_time;
     uint32_t raw_timer_total_time = current_time + (uint32_t)TIMER_US_ReadCounter(); //What if get_timestamp in between periods?
     return (raw_timer_total_time/24); //Dependent on the BUS CLK speed.
-    // the raw_timer_total_time value is based on clock speed of the Timer. Conversion: 24 raw clocks roughly equal to one us.
+    //the raw_timer_total_time value is based on clock speed of the Timer. Conversion: 24 raw clocks roughly equal to one us.
 }
 
 CY_ISR(IMU_ISR_HANDLER)
@@ -179,6 +193,7 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
   
     //Initialize Timer tc interrupt
     STAMP_ISR_StartEx(TIMER_ISR_HANDLER);
+    //TIMESTAMP_ISR_StartEx(TIMESTAMP_ISR_HANDLER);
     //printOut("Timer TC Interrupt Initialized\r\n");
     
     CyDelay(STARTUP_DELAY_MS); //Wait for components to be ready for STARTUP_DELAY_MS
@@ -227,17 +242,16 @@ finally reaching the last stage where the transfer is complete.
 * Not too sure why HAL_MAX_TRANSFER_IN is 384 bytes, but I kept consistent with STM online version.
 */
 
-static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){
+static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){    
     if(I2C_bus_state == BUS_IDLE && attention_needed)
     {
-        uint32_t result; //Used for debugging and returning the status of each I2C read.
-        
         //I2C Read statement start
         do{
             result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, READ_LEN,IMU_I2C_MODE_COMPLETE_XFER);
+            //result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, pBuffer, READ_LEN,IMU_I2C_MODE_COMPLETE_XFER); //place length in pbuffer
             while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
             {
-                CyDelayUs(1); //Note this delay is necessary here so the I2C read can finish copying to buffer.
+                //CyDelayUs(1); //Note this delay is necessary here so the I2C read can finish copying to buffer.
             }
         }while(result != IMU_I2C_MSTR_NO_ERROR);
         //I2C Read statement end
@@ -258,53 +272,55 @@ static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uin
         {
             I2C_bus_state = BUS_GOT_LEN;
             //printOut("BUS_GOT_LEN\r\n");
-            volatile uint16_t len = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int                                                                       
-            //len checks
-            volatile uint32_t result;
-            if(len <= 0xFF) //CASE 1: Length of cargo is less than max HAL transfer size and less than the I2C max transfer size. 
+            leng = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int                                                                       
+            //leng = (pBuffer[0] + (pBuffer[1] << 8)) & ~0x8000; //this might be weird...
+            //length checks
+            if(leng <= 0xFF) //CASE 1: Length of cargo is less than max HAL transfer size and less than the I2C max transfer size. 
             {
-                
                 do
                 {
-                    result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, (uint8_t)len, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
+                    result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, (uint8_t)leng, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
+                    //result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,pBuffer, (uint8_t)leng, IMU_I2C_MODE_COMPLETE_XFER);
                     while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
                     {
-                        CyDelayUs(1);
+                        //CyDelayUs(1);
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
                 
-                payload_len = len;
+                payload_len = leng;
             }
             
             else        //CASE 2: Length of cargo is greater than I2C max transfer size.  Has two sub cases
                         //(Subcase 1: where length is greater than both I2C max and HAL max transfer sizes)
                         //(Subcase 2: where length is greater than I2C max but less than HAL max transfer size)
             {
-                if(len > SH2_HAL_MAX_TRANSFER_IN)       //If the length of message is more than max HAL transfer, limit to max HAL transfer
-                    len = SH2_HAL_MAX_TRANSFER_IN;      //At this point, worst case message would be a msg size 384 bytes.
-                uint16_t r = len - 0xFF;                //if the length of message is less than max HAL transfer, but more than max I2C transfer, make a rem_len to read in the remaining bytes after the initial max I2C read.
+                if(leng > SH2_HAL_MAX_TRANSFER_IN)       //If the length of message is more than max HAL transfer, limit to max HAL transfer
+                    leng = SH2_HAL_MAX_TRANSFER_IN;      //At this point, worst case message would be a msg size 384 bytes.
+                r = leng - 0xFF;                //if the length of message is less than max HAL transfer, but more than max I2C transfer, make a rem_len to read in the remaining bytes after the initial max I2C read.
                 do
                 {
                     result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, 0xFF, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
+                    //result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,pBuffer, 0xFF, IMU_I2C_MODE_COMPLETE_XFER);
                     while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
                     {
-                        CyDelayUs(1);
+                        //CyDelayUs(1);
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
                 
-                uint8_t rem_len = (uint8_t)r;           //This is the raw remaining values we want. Will add to it 4 bytes for the header in the I2C read
-                uint8_t temp_buf[256] = {0};            //Store the remaining bytes of the message into temp_buf, but recall that each I2C read from the IMU is prefixed with 4 byte SHTP header.
+                rem_len = (uint8_t)r;           //This is the raw remaining values we want. Will add to it 4 bytes for the header in the I2C read
+                                                //Store the remaining bytes of the message into temp_buf, but recall that each I2C read from the IMU is prefixed with 4 byte SHTP header.
                 
                 do
                 {
                     result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,temp_buf, rem_len+0x04,IMU_I2C_MODE_COMPLETE_XFER);    //read in the rest of the message now and place into tempbuf. Watch out for that header! Put in a 4 byte offset.
                     while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
                     {
-                        CyDelayUs(1);
+                        //CyDelayUs(1);
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
 
                 memcpy(rx_buf + 0xFF,temp_buf + 0x04, rem_len); //copying the remainder transfer from temp_buf without the 4 byte header into rx_buf
+                //memcpy(pBuffer + 0xFF,temp_buf + 0x04, rem_len);
                 payload_len = 0xFF + rem_len; //Reset the payload_len to the length entirety of the two I2C reads
             }//end else
             
