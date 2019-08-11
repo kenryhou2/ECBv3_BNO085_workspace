@@ -45,6 +45,8 @@ uint8 buffer[USBUART_BUFFER_SIZE]; //used for USBUART in DATATRANSM2
 sh2_Hal_t *pSh2Hal;
 sh2_ProductIds_t prodIds;           //Used for getting product ID in Sh2_getProdID().    
 sh2_SensorValue_t value;
+sh2_SensorEvent_t eventsBuff[200];
+int eventsBuffindex = 0;
 
 //Debugging constants
 int interruptval = 1;
@@ -214,104 +216,11 @@ static int start_reports()
     //return status;
 }
 
-//sh2_SensorEvent_t eventsBuff[200];
-//int eventsBuffindex = 0;
+
 
 static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
-    sensor_event = *pEvent;
-    
-//    eventsBuff[eventsBuffindex] = sensor_event;
-//    eventsBuffindex++;
-//    
-        status = sh2_decodeSensorEvent(&value, &sensor_event); //sensor_event fluctuates type of data it is outputting randomly. Use flags to detect when certain sensor is selected.
-        
-        switch(sensor_event.reportId)
-        {
-            case SH2_GAME_ROTATION_VECTOR:                  //detection of the event being for a certain sensor.
-            {
-                got_rot = 1;
-                transmitBuf[0] = value.un.gameRotationVector.i;
-                transmitBuf[1] = value.un.gameRotationVector.j;
-                transmitBuf[2] = value.un.gameRotationVector.k;
-                transmitBuf[3] = value.un.gameRotationVector.real;
-                gameAccuracy = (sensor_event.report[2] & 0x03);
-                break;
-            }
-            case SH2_ACCELEROMETER:
-            {
-                got_accel = 1;
-                transmitBuf[4] = value.un.accelerometer.x; 
-                transmitBuf[5] = value.un.accelerometer.y; 
-                transmitBuf[6] = value.un.accelerometer.z;
-                accelAccuracy = (sensor_event.report[2] & 0x03);
-                break;
-            }
-            case SH2_GYROSCOPE_CALIBRATED:
-            {
-                got_gyro = 1;
-                transmitBuf[7] = value.un.gyroscope.x; 
-                transmitBuf[8] = value.un.gyroscope.y; 
-                transmitBuf[9] = value.un.gyroscope.z;
-                gyroAccuracy = (sensor_event.report[2] & 0x03);   
-                break;
-            }
-            case SH2_MAGNETIC_FIELD_CALIBRATED:
-            {
-                got_mag = 1;
-                magAccuracy = (sensor_event.report[2] & 0x03);
-            }
-        }
-        #ifdef CALIBRATE_MAG_MODE
-        if (got_accel && got_gyro && got_rot && got_mag)
-        {
-            #ifdef  USBUART_MODE
-            #ifdef DATA_OUTPUT_MODE    
-            USBUART_PutData(( void *)transmitBuf,40);
-            #endif
-            print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy, magAccuracy);
-            if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2 && magAccuracy >=2)
-                accCount ++;    
-            else
-            {
-                cal = false;
-                accCount = 0;
-                LED_R_Write(0);
-            }
-            
-            #endif
-            got_accel = 0;
-            got_gyro = 0;
-            got_rot = 0;
-            got_mag = 0;
-        }
-        #endif
-        
-        #ifndef CALIBRATE_MAG_MODE
-        if (got_accel && got_gyro && got_rot)
-        {         
-            TIMER_FIRING_PIN_Write(0);
-            #ifdef  USBUART_MODE
-            #ifdef DATA_OUTPUT_MODE    
-            USBUART_PutData(( void *)transmitBuf,40);
-           
-            #endif
-            print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
-            if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
-                accCount ++;    
-            else
-            {
-                cal = false;
-                accCount = 0;
-                LED_R_Write(0);
-            }
-            #endif
-            TIMER_FIRING_PIN_Write(1);
-            tdf = getTdiff();
-            got_accel = 0;
-            got_gyro = 0;
-            got_rot = 0;
-        }
-        #endif
+    eventsBuff[eventsBuffindex] = *pEvent;
+    eventsBuffindex++;
     return;
 }
 
@@ -485,6 +394,102 @@ int main(void)
             sh2_saveDcdNow();  
         }
         sh2_service();
+        
+        for(int i = 0; i < eventsBuffindex; i++)
+        {
+            sensor_event = eventsBuff[i];
+            status = sh2_decodeSensorEvent(&value, &sensor_event); //sensor_event fluctuates type of data it is outputting randomly. Use flags to detect when certain sensor is selected.
+            switch(sensor_event.reportId)
+            {
+                case SH2_GAME_ROTATION_VECTOR:                  //detection of the event being for a certain sensor.
+                {
+                    got_rot = 1;
+                    transmitBuf[0] = value.un.gameRotationVector.i;
+                    transmitBuf[1] = value.un.gameRotationVector.j;
+                    transmitBuf[2] = value.un.gameRotationVector.k;
+                    transmitBuf[3] = value.un.gameRotationVector.real;
+                    gameAccuracy = (sensor_event.report[2] & 0x03);
+                    break;
+                }
+                case SH2_ACCELEROMETER:
+                {
+                    got_accel = 1;
+                    transmitBuf[4] = value.un.accelerometer.x; 
+                    transmitBuf[5] = value.un.accelerometer.y; 
+                    transmitBuf[6] = value.un.accelerometer.z;
+                    accelAccuracy = (sensor_event.report[2] & 0x03);
+                    break;
+                }
+                case SH2_GYROSCOPE_CALIBRATED:
+                {
+                    got_gyro = 1;
+                    transmitBuf[7] = value.un.gyroscope.x; 
+                    transmitBuf[8] = value.un.gyroscope.y; 
+                    transmitBuf[9] = value.un.gyroscope.z;
+                    gyroAccuracy = (sensor_event.report[2] & 0x03);   
+                    break;
+                }
+                case SH2_MAGNETIC_FIELD_CALIBRATED:
+                {
+                    got_mag = 1;
+                    magAccuracy = (sensor_event.report[2] & 0x03);
+                }
+            }
+            #ifdef CALIBRATE_MAG_MODE
+            if (got_accel && got_gyro && got_rot && got_mag)
+            {
+                #ifdef  USBUART_MODE
+                #ifdef DATA_OUTPUT_MODE    
+                USBUART_PutData(( void *)transmitBuf,40);
+                #endif
+                print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy, magAccuracy);
+                if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2 && magAccuracy >=2)
+                    accCount ++;    
+                else
+                {
+                    cal = false;
+                    accCount = 0;
+                    LED_R_Write(0);
+                }
+                
+                #endif
+                got_accel = 0;
+                got_gyro = 0;
+                got_rot = 0;
+                got_mag = 0;
+            }
+            #endif
+            
+            #ifndef CALIBRATE_MAG_MODE
+            if (got_accel && got_gyro && got_rot)
+            {         
+                TIMER_FIRING_PIN_Write(0);
+                #ifdef  USBUART_MODE
+                #ifdef DATA_OUTPUT_MODE    
+                USBUART_PutData(( void *)transmitBuf,40);
+               
+                #endif
+                print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
+                if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
+                    accCount ++;    
+                else
+                {
+                    cal = false;
+                    accCount = 0;
+                    LED_R_Write(0);
+                }
+                #endif
+                TIMER_FIRING_PIN_Write(1);
+                tdf = getTdiff();
+                got_accel = 0;
+                got_gyro = 0;
+                got_rot = 0;
+            }
+            #endif   
+            
+        } //end printing events for loop
+        eventsBuffindex = 0; //reset our pointer for eventsBuffer so we print new values.
+        
     } //End For loop
 } //end Main
 
