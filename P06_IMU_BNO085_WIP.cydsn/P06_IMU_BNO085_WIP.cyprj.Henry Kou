@@ -173,8 +173,8 @@
 <v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\cy_isr_v1_70\Custom\custom.cs</v>
 <v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\cy_isr_v1_70\PSoC5\API\intc.c</v>
 <v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\cy_isr_v1_70\PSoC5\API\intc.h</v>
-<v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\cy_psoc3_i2c_v1_0\cy_psoc3_i2c_v1_0.cyprimitive</v>
-<v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\cy_psoc3_i2c_v1_0\cy_psoc3_i2c_v1_0.cysym</v>
+<v>${CyRoot}\psoc\content\CyComponentLibrary\CyComponentLibrary.cylib\bI2C_v3_50\bI2C_v3_50.cysym</v>
+<v>${CyRoot}\psoc\content\CyComponentLibrary\CyComponentLibrary.cylib\bI2C_v3_50\bI2C_v3_50.v</v>
 <v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\or_v1_0\or_v1_0.cysym</v>
 <v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\or_v1_0\or_v1_0.pdf</v>
 <v>${CyRoot}\psoc\content\CyPrimitives\cyprimitives.cylib\or_v1_0\or_v1_0.v</v>
@@ -521,9 +521,12 @@
 <warp_dep>
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\ieee\work\stdlogic.vif</v>
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\stdlogic\mod_genv.vif</v>
+<v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\cypress.v</v>
+<v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\cy_psoc3_inc.v</v>
 <v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\stdlogic\rtlpkg.vif</v>
+<v>C:\Program Files (x86)\Cypress\PSoC Creator\4.2\PSoC Creator\warp\lib\common\stdlogic\cy_psoc3.vif</v>
 </warp_dep>
-<deps_time v="132098650004503215" />
+<deps_time v="132100421009418812" />
 <top_block v="TopDesign" />
 <last_generation v="0" />
 <pdl_path v="" />
@@ -544,6 +547,7 @@
 <dep name=".\Generated_Source\PSoC5\Clock_1.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_2.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_3.h" />
+<dep name=".\Generated_Source\PSoC5\Clock_7.h" />
 <dep name=".\Generated_Source\PSoC5\CyDmac.h" />
 <dep name=".\Generated_Source\PSoC5\CyFlash.h" />
 <dep name=".\Generated_Source\PSoC5\CyLib.h" />
@@ -618,6 +622,7 @@
 <file name=".\Generated_Source\PSoC5\Clock_1.h" />
 <file name=".\Generated_Source\PSoC5\Clock_2.h" />
 <file name=".\Generated_Source\PSoC5\Clock_3.h" />
+<file name=".\Generated_Source\PSoC5\Clock_7.h" />
 <file name=".\Generated_Source\PSoC5\CyDmac.h" />
 <file name=".\Generated_Source\PSoC5\CyFlash.h" />
 <file name=".\Generated_Source\PSoC5\CyLib.h" />
@@ -710,6 +715,7 @@
 <dep name=".\Generated_Source\PSoC5\Clock_1.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_2.h" />
 <dep name=".\Generated_Source\PSoC5\Clock_3.h" />
+<dep name=".\Generated_Source\PSoC5\Clock_7.h" />
 <dep name=".\Generated_Source\PSoC5\CyDmac.h" />
 <dep name=".\Generated_Source\PSoC5\CyFlash.h" />
 <dep name=".\Generated_Source\PSoC5\CyLib.h" />
@@ -819,6 +825,15 @@
 <dep name=".\Generated_Source\PSoC5\cytypes.h" />
 </file>
 <file name=".\Generated_Source\PSoC5\Clock_3.c" />
+<file name=".\CortexM3\ARM_GCC_541\Debug\Clock_7.o">
+<dep name=".\Generated_Source\PSoC5\Clock_7.c" />
+<dep name=".\Generated_Source\PSoC5\Clock_7.h" />
+<dep name=".\Generated_Source\PSoC5\cydevice.h" />
+<dep name=".\Generated_Source\PSoC5\cydevice_trm.h" />
+<dep name=".\Generated_Source\PSoC5\cyfitter.h" />
+<dep name=".\Generated_Source\PSoC5\cytypes.h" />
+</file>
+<file name=".\Generated_Source\PSoC5\Clock_7.c" />
 <file name=".\CortexM3\ARM_GCC_541\Debug\Cm3Start.o">
 <dep name=".\Generated_Source\PSoC5\Cm3Start.c" />
 <dep name=".\Generated_Source\PSoC5\CyDmac.h" />
@@ -1620,16 +1635,6 @@
 <file name=".\Generated_Source\PSoC5\cydevicegnu.inc" />
 <file name=".\Generated_Source\PSoC5\cydevicegnu_trm.inc" />
 <file name=".\Generated_Source\PSoC5\cyfittergnu.inc" />
-<file name=".\Generated_Source\PSoC5\Clock_7.h" />
-<file name=".\CortexM3\ARM_GCC_541\Debug\Clock_7.o">
-<dep name=".\Generated_Source\PSoC5\Clock_7.c" />
-<dep name=".\Generated_Source\PSoC5\Clock_7.h" />
-<dep name=".\Generated_Source\PSoC5\cydevice.h" />
-<dep name=".\Generated_Source\PSoC5\cydevice_trm.h" />
-<dep name=".\Generated_Source\PSoC5\cyfitter.h" />
-<dep name=".\Generated_Source\PSoC5\cytypes.h" />
-</file>
-<file name=".\Generated_Source\PSoC5\Clock_7.c" />
 <file name=".\Generated_Source\PSoC5\Bootloadable.h" />
 <file name=".\CortexM3\ARM_GCC_541\Debug\Bootloadable.o">
 <dep name=".\Generated_Source\PSoC5\Bootloadable.c" />
@@ -1808,6 +1813,7 @@
 <dep name=".\CortexM3\ARM_GCC_541\Debug\IMU_RST.o" />
 <dep name=".\CortexM3\ARM_GCC_541\Debug\IMU_ISR_INT.o" />
 <dep name=".\CortexM3\ARM_GCC_541\Debug\TIMER_FIRING_PIN.o" />
+<dep name=".\CortexM3\ARM_GCC_541\Debug\Clock_7.o" />
 <dep name=".\CortexM3\ARM_GCC_541\Debug\P06_IMU_BNO085_WIP.a" />
 <dep name="${CyRoot}\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CortexM3\ARM_GCC_541\Debug\CyComponentLibrary.a" />
 </file>
@@ -1902,7 +1908,7 @@
 <dataGuid v="769d31ea-68b1-4f0c-b90a-7c10a43ee563">
 <CyGuid_769d31ea-68b1-4f0c-b90a-7c10a43ee563 type_name="CyDesigner.Common.ProjMgmt.Model.CyLinkCustomData" version="1">
 <link_deps_times>
-<name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM3" v="132100383747761962" />
+<name_val_pair name="c9323d49-d323-40b8-9b59-cc008d68a989@Debug@CortexM3" v="132100423993812536" />
 </link_deps_times>
 </CyGuid_769d31ea-68b1-4f0c-b90a-7c10a43ee563>
 </dataGuid>

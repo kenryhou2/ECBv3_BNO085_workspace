@@ -16,7 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 //#define CALIBRATE_MAG_MODE
 
 
@@ -151,21 +151,25 @@ void print10(float fa[10], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc)
     char s8[32];
     char s9[32];
     
-    sprintf(str,"i:%s\tj:%s\tk:%s\tr:%s\tx:%s\ty:%s\tz:%s\twx:%s\twy:%s\twz:%s\r\n",
-    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
-    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
+//    sprintf(str,"i:%s\tj:%s\tk:%s\tr:%s\tx:%s\ty:%s\tz:%s\twx:%s\twy:%s\twz:%s\r\n",
+//    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+//    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]), 
+//    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
+//    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
+//    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
+//    );
+//    printOut(str);
+    
+    //Printing for Arduino serial plotter
+
+    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n",
+    f2cstring(s0,fa[0]*10),f2cstring(s1,fa[1]),
+    f2cstring(s2,fa[2]*10),f2cstring(s3,fa[3]),
     f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
     f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
     f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
     );
     printOut(str);
-    
-    //Printing for Arduino serial plotter
-//    sprintf(str,"%s\t%s\t%s\t%s\r\n",
-//    f2cstring(s0,fa[0]*10),f2cstring(s1,fa[1]),
-//    f2cstring(s2,fa[2]*10),f2cstring(s3,fa[3])
-//    );
-//    printOut(str);
     //End printing for Arduino serial plotter.
     
 //    #ifdef CALIBRATE_MAG_MODE
