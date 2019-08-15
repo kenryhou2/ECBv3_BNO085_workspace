@@ -13,7 +13,7 @@
 <v>Output</v>
 </TreeKeys>
 <TreeStates>
-<CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\TopDesign">
+<CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6">
 <ExpandedNodeIds>
 <v>LL_PSOC_ECB3.1_WS</v>
 <v>LL_PSOC_ECB3.1_WS\P00_Template\TopDesign</v>
@@ -166,7 +166,6 @@
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test\Source Files\main.c</v>
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test\Generated_Source</v>
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test\Generated_Source\PSoC5</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\TopDesign</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Pins</v>
@@ -228,44 +227,51 @@
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\Source Files\main.c</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\Generated_Source</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\Generated_Source\PSoC5</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\TopDesign</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\Pins</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\Analog</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\Clocks</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\Interrupts</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\DMA</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\System</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\Directives</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\Flash Security</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.cydwr\EEPROM</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Header Files</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Header Files\cyapicallbacks.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Header Files\IMU_BNO085.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2.c</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_err.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_hal.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_hal_psoc5.c</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_SensorValue.c</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_SensorValue.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_util.c</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\sh2_util.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\shtp.c</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\library\IMU_BNO085\shtp.h</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Source Files</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Source Files\main.c</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Generated_Source</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Generated_Source\PSoC5</v>
 </ExpandedNodeIds>
 <VisibleNodeIds>
+<v>LL_PSOC_ECB3.1_WS</v>
+<v>LL_PSOC_ECB3.1_WS\P00_Template</v>
+<v>LL_PSOC_ECB3.1_WS\P01_Bootloader</v>
+<v>LL_PSOC_ECB3.1_WS\P02_Blink_LED_Bootloadable</v>
+<v>LL_PSOC_ECB3.1_WS\P03_USBUART_Control_LED</v>
 <v>LL_PSOC_ECB3.1_WS\P04_CAN_Basic</v>
 <v>LL_PSOC_ECB3.1_WS\P04a_CAN_TX_Test</v>
 <v>LL_PSOC_ECB3.1_WS\P04b_CAN_RX_Test</v>
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\TopDesign</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Pins</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Analog</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Clocks</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Interrupts</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\DMA</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\System</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Directives</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Flash Security</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\EEPROM</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Header Files</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Header Files\cyapicallbacks.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Header Files\IMU_BNO085.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2.c</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_err.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_hal.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_hal_psoc5.c</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_SensorValue.c</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_SensorValue.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_util.c</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_util.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\shtp.c</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\shtp.h</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Source Files</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Source Files\main.c</v>
-<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Generated_Source</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 <CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="">
@@ -301,6 +307,9 @@
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\TopDesign</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\TopDesign\TopDesign.cysch</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\TopDesign</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\TopDesign\TopDesign.cysch</v>
 </ExpandedNodeIds>
 <VisibleNodeIds>
 <v>LL_PSOC_ECB3.1_WS</v>
@@ -334,6 +343,9 @@
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\TopDesign</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\TopDesign\TopDesign.cysch</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\TopDesign</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\TopDesign\TopDesign.cysch</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 <CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="">
@@ -802,6 +814,7 @@
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\Bootloadable.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\BUZZER.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\Clock_1.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\Clock_2.lst</v>
@@ -810,6 +823,7 @@
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\Cm3Start.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\cy_em_eeprom.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\CyBootAsmGnu.lst</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\cybootloader.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\CyDmac.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\cyfitter_cfg.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\CyFlash.lst</v>
@@ -866,6 +880,7 @@
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\USBUART_pm.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\USBUART_std.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\Listing Files\USBUART_vnd.lst</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\P06_IMU_BNO085_WIP.cyacd</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\P06_IMU_BNO085_WIP.elf</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\P06_IMU_BNO085_WIP.hex</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\CortexM3\ARM_GCC_541\Debug\P06_IMU_BNO085_WIP.map</v>
@@ -945,6 +960,16 @@
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\P07_IMU_BNO085_SPI.gpdsc</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\P07_IMU_BNO085_SPI.rpt</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\P07_IMU_BNO085_SPI_timing.html</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CortexM3</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CortexM3\ARM_GCC_541</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CortexM3\ARM_GCC_541\Debug</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CortexM3\ARM_GCC_541\Debug\P08_IMU_BNO085_MAT6.elf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CortexM3\ARM_GCC_541\Debug\P08_IMU_BNO085_MAT6.hex</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CortexM3\ARM_GCC_541\Debug\P08_IMU_BNO085_MAT6.map</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.gpdsc</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6.rpt</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\P08_IMU_BNO085_MAT6_timing.html</v>
 </ExpandedNodeIds>
 <VisibleNodeIds>
 <v>LL_PSOC_ECB3.1_WS</v>
@@ -983,6 +1008,7 @@
 <v>LL_PSOC_ECB3.1_WS\P00_Template\CortexM3\ARM_GCC_541\Debug\Listing Files\DIO_12_FSW_BUT12.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P00_Template\CortexM3\ARM_GCC_541\Debug\Listing Files\DIO_13_FSW_BUT13.lst</v>
 <v>LL_PSOC_ECB3.1_WS\P00_Template\CortexM3\ARM_GCC_541\Debug\Listing Files\DIO_14_FSW_BATT_STATE.lst</v>
+<v>LL_PSOC_ECB3.1_WS\P00_Template\CortexM3\ARM_GCC_541\Debug\Listing Files\DIO_15_STIM_SHDN.lst</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 </TreeStates>
@@ -1105,6 +1131,7 @@
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\System Reference Guides</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\System Reference Guides\cy_boot_v5_70</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\and_v1_0.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Bootloadable_v1_60.pdf</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\cy_clock_v2_20</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\cy_clock_v2_20\cy_clock_v2_20.pdf</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\cy_constant_v1_0</v>
@@ -1143,6 +1170,29 @@
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\Timer_v2_80.pdf</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\USBFS_v3_20.pdf</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI\ZeroTerminal.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\PSoC 5LP Architecture TRM</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\CY8C58LP Family Datasheet</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\System Reference Guides</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\System Reference Guides\cy_boot_v5_70</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\and_v1_0.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Bootloadable_v1_60.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_clock_v2_20</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_clock_v2_20\cy_clock_v2_20.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_constant_v1_0</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_constant_v1_0\cy_constant_v1_0.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_isr_v1_70</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_isr_v1_70\cy_isr_v1_70.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_pins_v2_20</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\cy_pins_v2_20\cy_pins_v2_20.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\I2C_v3_50.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\not_v1_0</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\not_v1_0\not_v1_0.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\PWM_v3_30</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\PWM_v3_30\PWM_v3_30.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\Timer_v2_80.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\USBFS_v3_20.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6\ZeroTerminal.pdf</v>
 </ExpandedNodeIds>
 <VisibleNodeIds>
 <v>LL_PSOC_ECB3.1_WS</v>
@@ -1160,6 +1210,7 @@
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\System Reference Guides</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\System Reference Guides\cy_boot_v5_70</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\and_v1_0.pdf</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Bootloadable_v1_60.pdf</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\cy_clock_v2_20</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\cy_clock_v2_20\cy_clock_v2_20.pdf</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\cy_constant_v1_0</v>
@@ -1198,6 +1249,12 @@
 <name v=".\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" />
 <name v=".\P06_IMU_BNO085_WIP.cydsn\main.c" />
 <name v=".\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" />
+<name v=".\library\hillcrestlabs-sh2\sh2.h" />
+<name v=".\library\hillcrestlabs-sh2\shtp.c" />
+<name v=".\library\hillcrestlabs-sh2\sh2.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\IMU_I2C_MASTER.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\cyfitter_cfg.c" />
+<name v=".\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\TIMER_US.c" />
 </OpenDocs>
 <OpenDocsLayout><![CDATA[<?xml version="1.0"?><!--
 
@@ -1205,7 +1262,7 @@
   Copyright (c) 2001-2016 Actipro Software LLC.  All rights reserved.
   http://www.actiprosoftware.com
 
---><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="985, 532" SelectedTabbedMdiWindow="bf76d283-718e-495d-9ead-5fe6abfebd16"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="e2121c3c-53d7-4dc5-8081-50e5fa9b04c5" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="bf76d283-718e-495d-9ead-5fe6abfebd16" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" Guid="317392a0-bba4-4e0d-be5e-b5e6ca581a66" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
+--><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="714, 484" SelectedTabbedMdiWindow="e2121c3c-53d7-4dc5-8081-50e5fa9b04c5"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\TopDesign\TopDesign.cysch" Guid="e2121c3c-53d7-4dc5-8081-50e5fa9b04c5" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\main.c" Guid="bf76d283-718e-495d-9ead-5fe6abfebd16" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2_hal_psoc5.c" Guid="317392a0-bba4-4e0d-be5e-b5e6ca581a66" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.h" Guid="3ca3214a-8d25-4cff-b7f3-45c788266b0f" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\shtp.c" Guid="f181dc42-afbd-4a1d-9697-f9d5dbd2ed1b" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\library\hillcrestlabs-sh2\sh2.c" Guid="2c5edeb3-8e65-4a25-a316-1656418a88d6" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\IMU_I2C_MASTER.c" Guid="5c9f2732-b043-425f-aceb-bc7dce129801" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\cyfitter_cfg.c" Guid="0529b428-756d-45c0-ba74-3f929968689e" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P06_IMU_BNO085_WIP.cydsn\Generated_Source\PSoC5\TIMER_US.c" Guid="222bb3a8-85fc-41af-9222-98c891179044" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
 <config v="" />
 <AutoUpdate v="true" />
 </CyGuid_843a90a4-0c4b-4e44-991d-05e7fb117a21>
