@@ -140,6 +140,7 @@ uint32_t getTdiff()
 void print10(float fa[10], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc, uint8_t magAcc)
 #endif
 #ifndef CALIBRATE_MAG_MODE
+
 void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc)
 #endif
 {
@@ -157,13 +158,13 @@ void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, 
 
     //Printing for Arduino serial plotter
 
-    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%sr\n",
+    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n", 
     f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
     f2cstring(s2,fa[2]),f2cstring(s3,fa[3]),
     f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
     f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
-    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
-    );
+    f2cstring(s8,fa[8]),f2cstring(s9,fa[9]));
+    
     printOut(str);
 
     //quaternion only 
@@ -206,7 +207,7 @@ static int start_reports()
     int sensorID;
     
     #ifndef CALIBRATE_MAG_MODE
-    static const int enabledSensors[] = {SH2_GYRO_INTEGRATED_RV,SH2_ACCELEROMETER};
+    static const int enabledSensors[] = {SH2_ACCELEROMETER, SH2_GYRO_INTEGRATED_RV};
 //    static const int enabledSensors[] = 
 //    {SH2_RAW_GYROSCOPE, 
 //     SH2_GYROSCOPE_CALIBRATED,
@@ -285,6 +286,10 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitBuf[1] = value.un.gameRotationVector.j;
             transmitBuf[2] = value.un.gameRotationVector.k;
             transmitBuf[3] = value.un.gameRotationVector.real;
+            for(int i = 6; i < 10; i++)
+            {
+                transmitBuf[i] = 0;    
+            }
             gameAccuracy = (sensor_event.report[2] & 0x03);
             break;
         }
@@ -298,7 +303,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitBuf[7] = value.un.gyroIntegratedRV.angVelX;
             transmitBuf[8] = value.un.gyroIntegratedRV.angVelY;
             transmitBuf[9] = value.un.gyroIntegratedRV.angVelZ;
-            
+            break;
         }
         case SH2_ACCELEROMETER:
         {
@@ -349,7 +354,8 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
         case SH2_MAGNETIC_FIELD_CALIBRATED:
         {
             got_mag = 1;
-            magAccuracy = (sensor_event.report[2] & 0x03);
+            magAccuracy = (sensor_event.report[2] & 0x03);\
+            break;
         }
     }
     #ifdef CALIBRATE_MAG_MODE
@@ -379,7 +385,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
     
     #ifndef CALIBRATE_MAG_MODE
     //if (got_accel && got_rot && got_rawGyro && got_rawAccel)
-    if(got_accel && got_gyroRV)
+    if(got_gyroRV)
     {         
         #ifdef  USBUART_MODE
         #ifdef DATA_OUTPUT_MODE    
@@ -548,6 +554,7 @@ int main(void)
     PWM_EN_Start();
     PWM_BUZZER_Start();
     
+    LED_R_Write(1);
     TIMER_FIRING_PIN_Write(1);
     CyDelay(10);
     TIMER_FIRING_PIN_Write(0);
@@ -574,6 +581,7 @@ int main(void)
     }   
     //PWM_TIMER_FIRE_Start();
     /****LOOP****/
+    LED_R_Write(0);
     for(;;)
     {
         if(accCount >= 1000 && cal != true)

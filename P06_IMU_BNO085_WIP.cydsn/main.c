@@ -16,7 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 //#define CALIBRATE_MAG_MODE
 
 
@@ -58,7 +58,7 @@ float transmitBuf[10];
 //float transmitBuf[7]; //quaternion, linear acceleration
 int16_t transmitIntBuf[6];  //int16_t is 2 byte signed integer 
 
-bool got_accel = 0, got_gyro = 0, got_rot = 0, got_mag = 0, got_rawGyro = 0, got_rawAccel = 0, got_gyroRV = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
+bool got_accel = 0, got_linAccel = 0, got_gyro = 0, got_rot = 0, got_rot_stable = 0, got_mag = 0, got_rawGyro = 0, got_rawAccel = 0, got_gyroRV = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
 uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0;
 uint32_t accCount = 0;
 volatile uint32_t tdf;
@@ -157,7 +157,7 @@ void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, 
 
     //Printing for Arduino serial plotter
 
-    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%sr\n",
+    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n",
     f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
     f2cstring(s2,fa[2]),f2cstring(s3,fa[3]),
     f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
@@ -168,8 +168,8 @@ void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, 
 
     //quaternion only 
 //    sprintf(str,"%s\t%s\t%s\t%s\r\n",
-//    f2cstring(s0,fa[0]*10),f2cstring(s1,fa[1]*10),
-//    f2cstring(s2,fa[2]*10),f2cstring(s3,fa[3]*10));
+//    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+//    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]));
 //    printOut(str);
     
     //gyro only
@@ -206,7 +206,7 @@ static int start_reports()
     int sensorID;
     
     #ifndef CALIBRATE_MAG_MODE
-    static const int enabledSensors[] = {SH2_GYRO_INTEGRATED_RV,SH2_ACCELEROMETER};
+    static const int enabledSensors[] = {SH2_GYRO_INTEGRATED_RV, SH2_ACCELEROMETER};
 //    static const int enabledSensors[] = 
 //    {SH2_RAW_GYROSCOPE, 
 //     SH2_GYROSCOPE_CALIBRATED,
@@ -288,18 +288,30 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             gameAccuracy = (sensor_event.report[2] & 0x03);
             break;
         }
-        case SH2_GYRO_INTEGRATED_RV:
+        
+        case SH2_LINEAR_ACCELERATION:                  //detection of the event being for a certain sensor.
         {
+            got_linAccel = 1;
+            transmitBuf[4] = value.un.linearAcceleration.x;
+            transmitBuf[5] = value.un.linearAcceleration.y;
+            transmitBuf[6] = value.un.linearAcceleration.z;
+            //gameAccuracy = (sensor_event.report[2] & 0x03);
+            break;
+        }
+        case SH2_GYRO_INTEGRATED_RV:
+        { //reports at ~300 Hz
             got_gyroRV = 1;
             transmitBuf[0] = value.un.gyroIntegratedRV.i;
             transmitBuf[1] = value.un.gyroIntegratedRV.j;
-            transmitBuf[2] =  value.un.gyroIntegratedRV.k;
+            transmitBuf[2] = value.un.gyroIntegratedRV.k;
             transmitBuf[3] = value.un.gyroIntegratedRV.real;
             transmitBuf[7] = value.un.gyroIntegratedRV.angVelX;
             transmitBuf[8] = value.un.gyroIntegratedRV.angVelY;
             transmitBuf[9] = value.un.gyroIntegratedRV.angVelZ;
             
+            break;
         }
+        
         case SH2_ACCELEROMETER:
         {
             got_accel = 1;
@@ -307,7 +319,8 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitBuf[5] = value.un.accelerometer.y; 
             transmitBuf[6] = value.un.accelerometer.z;
             accelAccuracy = (sensor_event.report[2] & 0x03);
-            
+            //CyDelayUs(2);
+           
             break;
         }
         case SH2_GYROSCOPE_CALIBRATED:
@@ -350,6 +363,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
         {
             got_mag = 1;
             magAccuracy = (sensor_event.report[2] & 0x03);
+            break;
         }
     }
     #ifdef CALIBRATE_MAG_MODE
@@ -378,14 +392,16 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
     #endif
     
     #ifndef CALIBRATE_MAG_MODE
-    //if (got_accel && got_rot && got_rawGyro && got_rawAccel)
-    if(got_accel && got_gyroRV)
+    
+    if(got_gyroRV)
+    //if(got_accel)
     {         
         #ifdef  USBUART_MODE
         #ifdef DATA_OUTPUT_MODE    
         USBUART_PutData(( void *)transmitBuf,40); //transmit orientation, linear acceleration
         //USBUART_PutData(( void *)transmitIntBuf,12); //transmit raw gyro
         #endif
+        //USBUART_PutString("printing gyro vector change");
         print10(transmitBuf);//,transmitIntBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
         if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
             accCount ++;    
@@ -398,12 +414,13 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
         #endif
         
         //tdf = getTdiff();
-        got_accel = 0;
-        got_gyro = 0;
-        got_rot = 0;
-        got_rawGyro = 0;
-        got_rawAccel = 0;
-        got_gyroRV = 0;
+        got_accel = false;
+        got_gyro = false;
+        got_rot = false;
+        got_rawGyro = false;
+        got_rawAccel = false;
+        got_gyroRV = false;
+        got_linAccel = false;
         toggleFiringPin();
     }
     #endif   
@@ -548,6 +565,8 @@ int main(void)
     PWM_EN_Start();
     PWM_BUZZER_Start();
     
+    LED_R_Write(1);
+    
     TIMER_FIRING_PIN_Write(1);
     CyDelay(10);
     TIMER_FIRING_PIN_Write(0);
@@ -574,6 +593,9 @@ int main(void)
     }   
     //PWM_TIMER_FIRE_Start();
     /****LOOP****/
+    
+    LED_R_Write(0);
+    
     for(;;)
     {
         if(accCount >= 1000 && cal != true)
