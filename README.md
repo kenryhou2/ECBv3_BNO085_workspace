@@ -35,13 +35,13 @@ P06 Project Details.
 - Printing Data
 
 # Useful Links
--[BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
--[SH2 Datasheet](https://cdn.sparkfun.com/assets/4/d/9/3/8/SH-2-Reference-Manual-v1.2.pdf)
--[SH2 specifics of SHTP Datasheet](https://www.hillcrestlabs.com/downloads/sh-2-shtp-reference-manual)
--[SHTP Datasheet](https://cdn.sparkfun.com/assets/7/6/9/3/c/Sensor-Hub-Transport-Protocol-v1.7.pdf)
--[STM BNO085 Implementation](https://github.com/hcrest/sh2-demo-nucleo)
--[Arduino BNO085 Implementation](https://github.com/sparkfun/Qwiic_IMU_BNO080/blob/master/Firmware/Tester/Tester.ino)
--[Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
--[Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
+- [BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
+- [SH2 Datasheet](https://cdn.sparkfun.com/assets/4/d/9/3/8/SH-2-Reference-Manual-v1.2.pdf)
+- [SH2 specifics of SHTP Datasheet](https://www.hillcrestlabs.com/downloads/sh-2-shtp-reference-manual)
+- [SHTP Datasheet](https://cdn.sparkfun.com/assets/7/6/9/3/c/Sensor-Hub-Transport-Protocol-v1.7.pdf)
+- [STM BNO085 Implementation](https://github.com/hcrest/sh2-demo-nucleo)
+- [Arduino BNO085 Implementation](https://github.com/sparkfun/Qwiic_IMU_BNO080/blob/master/Firmware/Tester/Tester.ino)
+- [Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
+- [Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
 
 
