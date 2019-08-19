@@ -327,6 +327,7 @@
     </Group>
     <Group key="Pin">
       <Data key="8d318d8b-cf7b-4b6b-b02c-ab1c5c49d0ba" value="KEY2" />
+      <Data key="8dcf5c40-3400-4742-9511-9e968e1b1db2" value="Pin_3" />
       <Data key="505c0a94-b084-4ba1-ab81-7e953d4d2343/8b77a6c4-10a0-4390-971c-672353e2a49c" value="USBFS_Dm" />
       <Data key="505c0a94-b084-4ba1-ab81-7e953d4d2343/618a72fc-5ddd-4df5-958f-a3d55102db42" value="USBFS_Dp" />
       <Data key="609ed965-666d-4bd3-876a-1e71bce2a474" value="LED_G" />
@@ -3427,14 +3428,19 @@
         <Data key="Port Format" value="6,1" />
       </Group>
     </Group>
+    <Group key="8dcf5c40-3400-4742-9511-9e968e1b1db2">
+      <Group key="0">
+        <Data key="Port Format" value="15,0" />
+      </Group>
+    </Group>
     <Group key="609ed965-666d-4bd3-876a-1e71bce2a474">
       <Group key="0">
-        <Data key="Port Format" value="5,1" />
+        <Data key="Port Format" value="2,5" />
       </Group>
     </Group>
     <Group key="622c04bf-a973-4fa8-8976-9d339b38c1d2">
       <Group key="0">
-        <Data key="Port Format" value="5,3" />
+        <Data key="Port Format" value="15,4" />
       </Group>
     </Group>
     <Group key="631d37e3-6cf7-4de9-8fe0-1d4224080162">
@@ -3444,22 +3450,22 @@
     </Group>
     <Group key="ba6a9952-a681-461d-abea-12d3e9cdedb1">
       <Group key="0">
-        <Data key="Port Format" value="12,0" />
+        <Data key="Port Format" value="3,0" />
       </Group>
     </Group>
     <Group key="c0371cdf-0e81-45f6-a5dc-7dcd3d6d0f51">
       <Group key="0">
-        <Data key="Port Format" value="5,0" />
+        <Data key="Port Format" value="2,6" />
       </Group>
     </Group>
     <Group key="e851a3b9-efb8-48be-bbb8-b303b216c393">
       <Group key="0">
-        <Data key="Port Format" value="5,2" />
+        <Data key="Port Format" value="2,4" />
       </Group>
     </Group>
     <Group key="f21388fb-dda7-4417-a8fd-5cec8f123da3">
       <Group key="0">
-        <Data key="Port Format" value="1,2" />
+        <Data key="Port Format" value="12,0" />
       </Group>
     </Group>
     <Group key="UnAssigned Pins" />

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <blockRegMap version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://cypress.com/xsd/cyblockregmap cyblockregmap.xsd" xmlns="http://cypress.com/xsd/cyblockregmap">
-  <block name="IMU_SDA" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="IMU_SCL" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="STAMP_ISR" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="Clock_4" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="IMU_SDA" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="IMU_INT" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="STAMP_ISR" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="IMU_SCL" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="not_3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="cy_constant_6" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="IMU_I2C" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false">
@@ -113,11 +114,11 @@
     <register name="TIMER_US_PERIOD" address="0x40004F28" bitWidth="16" desc="TMRx.PER0 - Assigned Period" hidden="false" />
     <register name="TIMER_US_COUNTER" address="0x40004F2A" bitWidth="16" desc="TMRx.CNT_CMP0 - Current Down Counter Value" hidden="false" />
   </block>
-  <block name="IMU_INT" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="Bootloadable" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="Clock_7" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="TIMER_FIRING_PIN" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="cy_boot" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="Em_EEPROM_Dynamic" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="TIMER_FIRING_PIN" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="ZeroTerminal_1" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="IMU_ISR_INT" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="IMU_RST" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
@@ -978,10 +979,6 @@
       <field name="RA9" from="0" to="0" access="RW" resetVal="" desc="Read Address for EP MSB." hidden="false" />
     </register>
   </block>
-  <block name="cy_constant_5" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="BUZZER" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="KEY3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="Clock_1" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="PWM_LED" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false">
     <block name="vmIRQ" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
     <block name="vmCompare" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
@@ -1040,11 +1037,15 @@
     <register name="PWM_LED_PERIOD" address="0x40004F1C" bitWidth="8" desc="TMRx.PER0 - Assigned Period" hidden="false" />
     <register name="PWM_LED_COMPARE" address="0x40004F1E" bitWidth="8" desc="TMRx.CNT_CMP0 - Assigned Compare Value" hidden="false" />
   </block>
+  <block name="BUZZER" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="cy_constant_4" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="Clock_1" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="KEY3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="LED_G" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="LED_R" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="not_2" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="LED_B" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="cy_constant_4" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="cy_constant_2" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="PWM_BUZZER" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false">
     <block name="vmIRQ" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
     <block name="vmCompare" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
@@ -1103,9 +1104,9 @@
     <register name="PWM_BUZZER_PERIOD" address="0x40004F04" bitWidth="16" desc="TMRx.PER0 - Assigned Period" hidden="false" />
     <register name="PWM_BUZZER_COMPARE" address="0x40004F06" bitWidth="16" desc="TMRx.CNT_CMP0 - Assigned Compare Value" hidden="false" />
   </block>
-  <block name="Clock_3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="cy_constant_5" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="cy_constant_3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
-  <block name="cy_constant_2" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="Clock_3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="Clock_2" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
   <block name="PWM_EN" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false">
     <block name="vmIRQ" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
