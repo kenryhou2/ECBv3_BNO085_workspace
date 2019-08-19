@@ -3,7 +3,7 @@
 Tested build environment:
 ```Windows 10 64-bits #PSOC Creator 4.2```
 
-#Hardware
+# Hardware
 
 - ECB v3.1 board: Version3 rev 1 of the Embedded Controller Board(ECB), a small form factor swiss army knife for bio-robotics applications.
 - MAT6 board: ECB for MAT6 6 legged robo with force sensing, and BNO085 IMU integration on the feet. 
@@ -24,13 +24,24 @@ Tested build environment:
 -P08_IMU_BNO085_MAT6: Adaptation of IMU code to another ECB, this time with a different PSoC processor. Hardware pins are changed and performs same functionality as P06.
 -P09_MAT6_Bootloader: Bootloader project for MAT6 ECB.
 
-##P06 Project Details.
+P06 Project Details.
 
-#Quick Start
+# Quick Start
 - 
 
-#Full Procedure Description
+# Full Procedure Description
 - Initialization
 - Servicing
 - Printing Data
+
+# Useful Links
+-[BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
+-[SH2 Datasheet](https://cdn.sparkfun.com/assets/4/d/9/3/8/SH-2-Reference-Manual-v1.2.pdf)
+-[SH2 specifics of SHTP Datasheet](https://www.hillcrestlabs.com/downloads/sh-2-shtp-reference-manual)
+-[SHTP Datasheet](https://cdn.sparkfun.com/assets/7/6/9/3/c/Sensor-Hub-Transport-Protocol-v1.7.pdf)
+-[STM BNO085 Implementation](https://github.com/hcrest/sh2-demo-nucleo)
+-[Arduino BNO085 Implementation](https://github.com/sparkfun/Qwiic_IMU_BNO080/blob/master/Firmware/Tester/Tester.ino)
+-[Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
+-[Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
+
 
