@@ -160,12 +160,21 @@ void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, 
 
     //Printing for Arduino serial plotter
 
+//    sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n",
+//    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
+//    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]),
+//    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
+//    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
+//    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
+//    );
+//    printOut(str);
+    
     sprintf(str,"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\r\n",
-    f2cstring(s0,fa[0]),f2cstring(s1,fa[1]),
-    f2cstring(s2,fa[2]),f2cstring(s3,fa[3]),
-    f2cstring(s4,fa[4]),f2cstring(s5,fa[5]),
-    f2cstring(s6,fa[6]),f2cstring(s7,fa[7]),
-    f2cstring(s8,fa[8]),f2cstring(s9,fa[9])
+    f2cstring(s0,fa[0]*5),f2cstring(s1,fa[1]*5),
+    f2cstring(s2,fa[2]*5),f2cstring(s3,fa[3]*5),
+    f2cstring(s4,fa[4] + 20),f2cstring(s5,fa[5] + 20),
+    f2cstring(s6,fa[6] + 20),f2cstring(s7,fa[7] - 20),
+    f2cstring(s8,fa[8] - 20),f2cstring(s9,fa[9] - 20)
     );
     printOut(str);
 
