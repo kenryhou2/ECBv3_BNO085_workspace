@@ -16,8 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-//#define DATA_OUTPUT_MODE                   //When debugging, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
-//#define CALIBRATE_MAG_MODE
+#define DATA_OUTPUT_MODE                     //In order to debug, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 
 
 #define BUZZER_TIMER_CLK 8000000
@@ -45,25 +44,22 @@ uint8 buffer[USBUART_BUFFER_SIZE]; //used for USBUART in DATATRANSM2
 sh2_Hal_t *pSh2Hal;
 sh2_ProductIds_t prodIds;           //Used for getting product ID in Sh2_getProdID().    
 sh2_SensorValue_t value;
-sh2_SensorEvent_t eventsBuff[200];
-int eventsBuffindex = 0;
-
 //Debugging constants
 int interruptval = 1;
 volatile int status;                //Every sh2 function returns an int. Values specified in Sh2_err.h
-static char str [128];
+static char str [128];              //C-String used in printOut()
 volatile uint32_t time1 = 0;
 volatile uint32_t time2 = 0;
-float transmitBuf[10]; 
+float transmitBuf[10];              //Used to hold the float data from IMU when broadcasting in Data output mode.
 //float transmitBuf[7]; //quaternion, linear acceleration
-int16_t transmitIntBuf[6];  //int16_t is 2 byte signed integer 
+int16_t transmitIntBuf[6];  //int16_t is 2 byte signed integer  //Used for raw IMU data when broadcasting in Data Output mode.
 
 bool got_accel = 0, got_linAccel = 0, got_gyro = 0, got_rot = 0, got_rot_stable = 0, got_mag = 0, got_rawGyro = 0, got_rawAccel = 0, got_gyroRV = 0; //Flags to detect when sensor_event activates a certain sensor to receive data from
-uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0;
-uint32_t accCount = 0;
-volatile uint32_t tdf;
-bool cal = false;
-bool firing_pin_state = false;
+uint8_t gameAccuracy = 0, gyroAccuracy = 0, accelAccuracy = 0, magAccuracy = 0; //Reports from each sensor field have a status bit indicating how accurate the data is from [0-3] 3 being most accurate.
+uint32_t accCount = 0;      //accuracy count: Used to record how many times the enabled sensors are the accuracy threshold.
+volatile uint32_t tdf;      //time difference debug variable
+bool cal = false;           //calibrated boolean. Becomes true when accCount reaches a certain number.
+bool firing_pin_state = false;  //Debug pin boolean used in toggling the state of the firing pin.
 
 //FLAGS
 uint8_t IMU_READY = 0; //Startup IMU not ready
@@ -75,7 +71,6 @@ uint8_t IMU_READY = 0; //Startup IMU not ready
 
 static sh2_AsyncEvent_t async_event; //for helper function eventHandler()
 static uint8_t send_time = 0u;
-static uint8_t new_imu_data = 0;        //Used only in DATATRANSM2
 static sh2_SensorEvent_t sensor_event;  //Used in start_reports()
 
 /****HELPER FUNCTIONS*****/
@@ -99,7 +94,7 @@ void printOut(char s[64])
 }
 
 
-//Utility function for debugging
+//Utility function
 char * f2cstring(char s[32],float f) //Converts floats to a string for printOut
 {
     char *tmpSign = (f < 0) ? "-" : "";
@@ -124,6 +119,7 @@ void testPrintFloats()
     printOut(str);
 }
 
+//Returns time difference between two calls of this function.
 uint32_t getTdiff()
 {
     uint32_t tdiff = 0;
@@ -134,14 +130,21 @@ uint32_t getTdiff()
     return tdiff;
 }
 
-//Utility function for debugging
+//Utility function
+void toggleFiringPin()
+{
+    if(firing_pin_state)
+        TIMER_FIRING_PIN_Write(0);
+    else
+        TIMER_FIRING_PIN_Write(1);
+        
+    firing_pin_state = !firing_pin_state;
+}
 
-#ifdef CALIBRATE_MAG_MODE
-void print10(float fa[10], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc, uint8_t magAcc)
-#endif
-#ifndef CALIBRATE_MAG_MODE
+//Utility function for printing out string form of the IMU data. This is our printout during non Data output mode.
+
+
 void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, uint8_t gyroAcc)
-#endif
 {
     float a,b,c,d,e,f,g,h,i,j;
     char s0[32];
@@ -178,6 +181,12 @@ void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, 
 //    f2cstring(s2,fa[9]));
 //    printOut(str);
     
+    //accelerometer only
+//    sprintf(str,"%s\t%s\t%s\r\n",
+//    f2cstring(s0,fa[4]),f2cstring(s1,fa[5]),
+//    f2cstring(s2,fa[6]));
+//    printOut(str);
+    
     //End printing for Arduino serial plotter.
     
 //    sprintf(str,"i:%s\tj:%s\tk:%s\tr:%s\tx:%s\ty:%s\tz:%s\twx:%d\twy:%d\twz:%d\r\n",
@@ -188,16 +197,10 @@ void print10(float fa[10])//, int16_t ia[3], uint8_t gameAcc, uint8_t accelAcc, 
 //    ia[0],ia[1],ia[2]
 //    );
 //    printOut(str);
-        
-//    #ifdef CALIBRATE_MAG_MODE
-//    sprintf(str," game:%u accel:%u gyro:%u mag:%u accCount:%u\r\n", gameAcc, accelAcc, gyroAcc, magAcc,accCount);
-//    #endif
-//    #ifndef CALIBRATE_MAG_MODE
-//    sprintf(str," game:%u accel:%u gyro:%u mag:%u accCount:%u\r\n", gameAcc, accelAcc, gyroAcc,accCount);    
-//    #endif
-//    printOut(str); //second printout of sensor accuracy bits and Count.
+    
 }
 
+//Used to enable and configure sensor fields before reading from them.
 static int start_reports()
 {
     static sh2_SensorConfig_t config;
@@ -205,7 +208,7 @@ static int start_reports()
     int status;
     int sensorID;
     
-    #ifndef CALIBRATE_MAG_MODE
+
     static const int enabledSensors[] = {SH2_GYRO_INTEGRATED_RV, SH2_ACCELEROMETER};
 //    static const int enabledSensors[] = 
 //    {SH2_RAW_GYROSCOPE, 
@@ -214,13 +217,7 @@ static int start_reports()
 //     SH2_RAW_ACCELEROMETER,
 //     SH2_ACCELEROMETER,
 //     SH2_GYRO_INTEGRATED_RV,
-//    };
-
-    #endif
-    
-    #ifdef CALIBRATE_MAG_MODE
-    static const int enabledSensors[] = {SH2_GAME_ROTATION_VECTOR, SH2_ACCELEROMETER, SH2_GYROSCOPE_CALIBRATED, SH2_MAGNETIC_FIELD_CALIBRATED};
-    #endif
+//    };    
     config.changeSensitivityEnabled = false;
     config.changeSensitivityEnabled = false;
     config.wakeupEnabled = false;
@@ -229,6 +226,7 @@ static int start_reports()
     config.changeSensitivity = 0;
     config.batchInterval_us = 0;
     config.sensorSpecific = 0;
+    
     
     accelConfig.changeSensitivityEnabled = false;
     accelConfig.changeSensitivityEnabled = false;
@@ -242,8 +240,11 @@ static int start_reports()
     // Select a report interval.
     //config.reportInterval_us = 10000;  // microseconds (100Hz)
     //config.reportInterval_us = 2500;   // microseconds (400Hz)
-    config.reportInterval_us = 1000;   // microseconds (1000Hz)
-    accelConfig.reportInterval_us = 1000;
+    //config.reportInterval_us = 1000;  // microseconds (1000 Hz)
+    config.reportInterval_us = 5000;   // microseconds ( 200 Hz)
+    accelConfig.reportInterval_us = 1000; //Separate accel config variable  so we can change the report rate.
+    
+    //Note for implementing multiple sensors try to keep report rates different so that IMU processor doesn't get overwhelmed and decrease output frequency.
 
     for (unsigned int n = 0; n < ARRAY_LEN(enabledSensors); n++)
     {
@@ -260,16 +261,6 @@ static int start_reports()
         }
     }
     //return status;
-}
-
-void toggleFiringPin()
-{
-    if(firing_pin_state)
-        TIMER_FIRING_PIN_Write(0);
-    else
-        TIMER_FIRING_PIN_Write(1);
-        
-    firing_pin_state = !firing_pin_state;
 }
 
 static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
@@ -295,7 +286,6 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitBuf[4] = value.un.linearAcceleration.x;
             transmitBuf[5] = value.un.linearAcceleration.y;
             transmitBuf[6] = value.un.linearAcceleration.z;
-            //gameAccuracy = (sensor_event.report[2] & 0x03);
             break;
         }
         case SH2_GYRO_INTEGRATED_RV:
@@ -308,7 +298,6 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitBuf[7] = value.un.gyroIntegratedRV.angVelX;
             transmitBuf[8] = value.un.gyroIntegratedRV.angVelY;
             transmitBuf[9] = value.un.gyroIntegratedRV.angVelZ;
-            
             break;
         }
         
@@ -318,17 +307,16 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitBuf[4] = value.un.accelerometer.x; 
             transmitBuf[5] = value.un.accelerometer.y; 
             transmitBuf[6] = value.un.accelerometer.z;
-            accelAccuracy = (sensor_event.report[2] & 0x03);
-            //CyDelayUs(2);
-           
+            accelAccuracy = (sensor_event.report[2] & 0x03);     
+            
             break;
         }
         case SH2_GYROSCOPE_CALIBRATED:
         {
             got_gyro = 1;
-//                    transmitBuf[7] = value.un.gyroscope.x; 
-//                    transmitBuf[8] = value.un.gyroscope.y; 
-//                    transmitBuf[9] = value.un.gyroscope.z;
+            transmitBuf[7] = value.un.gyroscope.x; 
+            transmitBuf[8] = value.un.gyroscope.y; 
+            transmitBuf[9] = value.un.gyroscope.z;
             gyroAccuracy = (sensor_event.report[2] & 0x03);   
          
             break;
@@ -339,11 +327,7 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             got_rawGyro = 1;
             transmitIntBuf[0] = value.un.rawGyroscope.x; 
             transmitIntBuf[1] = value.un.rawGyroscope.y;  
-            transmitIntBuf[2] = value.un.rawGyroscope.z;  
-//            transmitBuf[7] = value.un.rawGyroscope.x; 
-//            transmitBuf[8] = value.un.rawGyroscope.y; 
-//            transmitBuf[9] = value.un.rawGyroscope.z;
-           
+            transmitIntBuf[2] = value.un.rawGyroscope.z;             
             break;
         }
         
@@ -353,12 +337,8 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             transmitIntBuf[3] = value.un.rawAccelerometer.x; 
             transmitIntBuf[4] = value.un.rawAccelerometer.y;  
             transmitIntBuf[5] = value.un.rawAccelerometer.z;
-            
             break;
-        }
-        
-        
-        
+        }      
         case SH2_MAGNETIC_FIELD_CALIBRATED:
         {
             got_mag = 1;
@@ -366,70 +346,46 @@ static void sensorHandler(void *cookie, sh2_SensorEvent_t *pEvent){
             break;
         }
     }
-    #ifdef CALIBRATE_MAG_MODE
-    if (got_accel && got_gyro && got_rot && got_mag)
-    {
-        #ifdef  USBUART_MODE
-        #ifdef DATA_OUTPUT_MODE    
-        USBUART_PutData(( void *)transmitBuf,40);
-        #endif
-        print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy, magAccuracy);
-        if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2 && magAccuracy >=2)
-            accCount ++;    
-        else
-        {
-            cal = false;
-            accCount = 0;
-            LED_R_Write(0);
-        }
         
-        #endif
-        got_accel = 0;
-        got_gyro = 0;
-        got_rot = 0;
-        got_mag = 0;
-    }
-    #endif
-    
-    #ifndef CALIBRATE_MAG_MODE
-    
-    if(got_gyroRV)
-    //if(got_accel)
+     //if(got_gyroRV || got_accel)
+    if(got_gyroRV && got_accel)
     {         
+        //Outputting transmit Buf
         #ifdef  USBUART_MODE
         #ifdef DATA_OUTPUT_MODE    
-        USBUART_PutData(( void *)transmitBuf,40); //transmit orientation, linear acceleration
+        USBUART_PutData(( void *)transmitBuf,40); //transmit orientation, acceleration, angular velocity.
         //USBUART_PutData(( void *)transmitIntBuf,12); //transmit raw gyro
         #endif
-        //USBUART_PutString("printing gyro vector change");
         print10(transmitBuf);//,transmitIntBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
-        if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
-            accCount ++;    
+        
+        //Check accuracy of each enabled sensor
+        if(accelAccuracy >= 2) //note: gyroIntegratedRV  doesn't have an accuracy bit
+        {
+            accCount ++;
+        }
         else
         {
-            cal = false;
-            accCount = 0;
+            cal = false;        //If the accuracy of enabled sensors is not higher than 2, accCount will reset and calibration starts again.
+            accCount = 0;       //Red LED indicates that calibration is finished.
             LED_R_Write(0);
         }
         #endif
         
-        //tdf = getTdiff();
-        got_accel = false;
-        got_gyro = false;
-        got_rot = false;
-        got_rawGyro = false;
-        got_rawAccel = false;
+        //Reset flags
+        got_accel = false;      //Reset flags every time we output. So we will obtain new values from each sensor.
         got_gyroRV = false;
-        got_linAccel = false;
+//        got_gyro = false;     //Uncomment if corresponding sensor is enabled. And revise if statement conditionals for output.
+//        got_rot = false;
+//        got_rawGyro = false;
+//        got_rawAccel = false;
+        
+//        got_linAccel = false;
         toggleFiringPin();
     }
-    #endif   
-            
-//    eventsBuff[eventsBuffindex] = *pEvent;
-//    eventsBuffindex++;
     return;
 }
 
+//Not sure what this is for, not used.
 static void eventHandler(void *cookie, sh2_AsyncEvent_t *pEvent){
     for(int i = 0; i < 5; i++){}
     async_event = *pEvent;
@@ -495,6 +451,7 @@ static int reportProdIds(void)
     return status;
 }
 
+//During the initialization process, enable calibrations for these sensor fields.
 static int enableCal(bool calAccel, bool calGyro, bool calMag)
 {
     volatile int status;
@@ -512,6 +469,17 @@ static int enableCal(bool calAccel, bool calGyro, bool calMag)
     return status & statusReturn;
 }
 
+static void checkCal()  //Once all accuracy bits of each sensor field is satisfactory, for 1000 cycles, save the configuration and dynamic calibration is finished.
+{
+    if(accCount >= 1000 && cal != true) //accCount is generated by checking if the accuracy bits of the corresponding enabled sensors are an optimal value.
+        {
+            cal = true;
+            LED_R_Write(1);
+            printOut("IMU calibrated\r\n");
+            sh2_saveDcdNow();  
+        }
+}
+
 //Phase functions:
 /* Order of Operations for IMU to work
     1. If USBUART enabled, start our USBUART
@@ -520,8 +488,9 @@ static int enableCal(bool calAccel, bool calGyro, bool calMag)
     4. Open our Sh2 object which sets up parameters from HAL to Sh2, and SHTP. 
     5. Enable our sensors and configure them for communication through reports. (with setSensorCallback, and start_reports)
        Now we can use SH2 functions to communicate with IMU. (functs such as Sh2_getProdID())
-    6. Repeatedly call Sh2_service which calls decode_Sensor_Event to repeatedly obtain data from IMU.
+    6. Repeatedly call Sh2_service which calls the HAL read function to repeatedly obtain data from IMU.
        Embedded system unable to print floats so need to convert them into s strings.
+    7. After enough HAL Reads, we have a sensor callback function that runs to output the IMU data. sensor callback is called within the service function.
 */
 
 void USBUART_setup()
@@ -562,176 +531,29 @@ int main(void)
     
     USBUART_setup();             //Start USBUART start process
     PWM_LED_Start();             //Init debug LEDs and Buzzer... no audio though
-    PWM_EN_Start();
+    PWM_EN_Start();                 
     PWM_BUZZER_Start();
     
-    LED_R_Write(1);
+    LED_R_Write(1);             //Initialization LED_R signals IMU initialization in process. (Also if calibration is done)
     
-    TIMER_FIRING_PIN_Write(1);
-    CyDelay(10);
-    TIMER_FIRING_PIN_Write(0);
-    CyDelay(20);
-    TIMER_FIRING_PIN_Write(1);
-    CyDelay(10);
-    TIMER_FIRING_PIN_Write(0);
-    CyDelay(20);
-    TIMER_FIRING_PIN_Write(1);
-    
-    //PWM_TIMER_FIRE_Start();
-    
-    printOut("****INITIALIZATION START****\r\n");
+    printOut("****IMU INITIALIZATION START****\r\n");
     IMU_setup();                 //Initialize IMU using SH2 HAL
-    start_reports();
+    start_reports();             //Enable our sensors and configure their output reports.
     //status = reportProdIds();  //Simple Sh2 function to get a product ID. Used in debugging to verify HAL read and write.
-	
-    //PWM_TIMER_FIRE_Start();
-    bool calAccel = 1, calGyro = 1, calMag = 1;
-    //status = enableCal(calAccel, calGyro, calMag);
-    while(status != 0)
-    {
-        
-    }   
-    //PWM_TIMER_FIRE_Start();
+    bool calAccel = 1, calGyro = 1, calMag = 1; //choose which axes to calibrate. We want all 9 axes calibrated
+    status = enableCal(calAccel, calGyro, calMag);  //enable calibration for the corresponding axes. Calibration is done
+                                                    //via a physical orientation of the IMU.
+    while(status != 0)                              //If status does not return zero, there is an additional problem with the calibration.
+    {}   
     /****LOOP****/
+    LED_R_Write(0);             //This LED ensures that our IMU Initialization is done, otherwise there may be an issue with a serial connection or another thing.           
     
-    LED_R_Write(0);
-    
+    //IMU initialization is finished at this point.
     for(;;)
     {
-        if(accCount >= 1000 && cal != true)
-        {
-            cal = true;
-            LED_R_Write(1);
-            printOut("IMU calibrated\r\n");
-            sh2_saveDcdNow();  
-        }
-        sh2_service();
         
-        
-//        for(int i = 0; i < eventsBuffindex; i++)
-//        {
-//            sensor_event = eventsBuff[i];
-//            status = sh2_decodeSensorEvent(&value, &sensor_event); //sensor_event fluctuates type of data it is outputting randomly. Use flags to detect when certain sensor is selected.
-//            switch(sensor_event.reportId)
-//            {
-//                case SH2_GAME_ROTATION_VECTOR:                  //detection of the event being for a certain sensor.
-//                {
-//                    got_rot = 1;
-//                    transmitBuf[0] = value.un.gameRotationVector.i;
-//                    transmitBuf[1] = value.un.gameRotationVector.j;
-//                    transmitBuf[2] = value.un.gameRotationVector.k;
-//                    transmitBuf[3] = value.un.gameRotationVector.real;
-//                    gameAccuracy = (sensor_event.report[2] & 0x03);
-//                    //toggleFiringPin();
-//                    break;
-//                }
-//                case SH2_ACCELEROMETER:
-//                {
-//                    got_accel = 1;
-//                    transmitBuf[4] = value.un.accelerometer.x; 
-//                    transmitBuf[5] = value.un.accelerometer.y; 
-//                    transmitBuf[6] = value.un.accelerometer.z;
-//                    accelAccuracy = (sensor_event.report[2] & 0x03);
-//                    //toggleFiringPin();
-//                    break;
-//                }
-//                case SH2_GYROSCOPE_CALIBRATED:
-//                {
-//                    got_gyro = 1;
-////                    transmitBuf[7] = value.un.gyroscope.x; 
-////                    transmitBuf[8] = value.un.gyroscope.y; 
-////                    transmitBuf[9] = value.un.gyroscope.z;
-//                    gyroAccuracy = (sensor_event.report[2] & 0x03);   
-//                    
-//                    break;
-//                }
-//                
-//                case SH2_RAW_GYROSCOPE:
-//                {
-//                    got_rawGyro = 1;
-//                    transmitIntBuf[0] = value.un.rawGyroscope.x; 
-//                    transmitIntBuf[1] = value.un.rawGyroscope.y;  
-//                    transmitIntBuf[2] = value.un.rawGyroscope.z;  
-//        //            transmitBuf[7] = value.un.rawGyroscope.x; 
-//        //            transmitBuf[8] = value.un.rawGyroscope.y; 
-//        //            transmitBuf[9] = value.un.rawGyroscope.z;
-//                   
-//                    break;
-//                }
-//                
-//                case SH2_RAW_ACCELEROMETER:
-//                {
-//                    got_rawAccel = 1;
-//                    transmitIntBuf[3] = value.un.rawAccelerometer.x; 
-//                    transmitIntBuf[4] = value.un.rawAccelerometer.y;  
-//                    transmitIntBuf[5] = value.un.rawAccelerometer.z;
-//                    
-//                    break;
-//                }
-//                
-//                case SH2_MAGNETIC_FIELD_CALIBRATED:
-//                {
-//                    got_mag = 1;
-//                    magAccuracy = (sensor_event.report[2] & 0x03);
-//                }
-//            }
-//            #ifdef CALIBRATE_MAG_MODE
-//            if (got_accel && got_gyro && got_rot && got_mag)
-//            {
-//                #ifdef  USBUART_MODE
-//                #ifdef DATA_OUTPUT_MODE    
-//                USBUART_PutData(( void *)transmitBuf,40);
-//                #endif
-//                print10(transmitBuf,gameAccuracy, accelAccuracy, gyroAccuracy, magAccuracy);
-//                if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2 && magAccuracy >=2)
-//                    accCount ++;    
-//                else
-//                {
-//                    cal = false;
-//                    accCount = 0;
-//                    LED_R_Write(0);
-//                }
-//                
-//                #endif
-//                got_accel = 0;
-//                got_gyro = 0;
-//                got_rot = 0;
-//                got_mag = 0;
-//            }
-//            #endif
-//            
-//            #ifndef CALIBRATE_MAG_MODE
-//            //if (got_accel && got_rot && got_rawGyro && got_rawAccel)
-//            if(got_rawAccel)
-//            {         
-//                #ifdef  USBUART_MODE
-//                #ifdef DATA_OUTPUT_MODE    
-//                USBUART_PutData(( void *)transmitBuf,16); //transmit orientation, linear acceleration
-//                USBUART_PutData(( void *)transmitIntBuf,12); //transmit raw gyro
-//                #endif
-//                print10(transmitBuf,transmitIntBuf,gameAccuracy, accelAccuracy, gyroAccuracy);
-//                if(gameAccuracy >= 2 && gyroAccuracy >= 2 && accelAccuracy >= 2)
-//                    accCount ++;    
-//                else
-//                {
-//                    cal = false;
-//                    accCount = 0;
-//                    LED_R_Write(0);
-//                }
-//                #endif
-//                
-//                //tdf = getTdiff();
-//                got_accel = 0;
-//                got_gyro = 0;
-//                got_rot = 0;
-//                got_rawGyro = 0;
-//                got_rawAccel = 0;
-//                toggleFiringPin();
-//            }
-//            #endif   
-//            
-//        } //end printing events for loop
-//        eventsBuffindex = 0; //reset our pointer for eventsBuffer so we print new values.
+        checkCal(); //Check if calibration of enabled sensors has occurred.
+        sh2_service(); //periodic call to read in new IMU data
         
     } //End For loop
         
