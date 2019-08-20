@@ -13,7 +13,7 @@
 <v>Output</v>
 </TreeKeys>
 <TreeStates>
-<CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="LL_PSOC_ECB3.1_WS\P09_Bootloader">
+<CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6">
 <ExpandedNodeIds>
 <v>LL_PSOC_ECB3.1_WS</v>
 <v>LL_PSOC_ECB3.1_WS\P00_Template\TopDesign</v>
@@ -166,6 +166,7 @@
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test\Source Files\main.c</v>
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test\Generated_Source</v>
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test\Generated_Source\PSoC5</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\TopDesign</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Pins</v>
@@ -275,45 +276,44 @@
 <v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Source Files</v>
 <v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Source Files\main.c</v>
 <v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5</v>
 </ExpandedNodeIds>
 <VisibleNodeIds>
-<v>LL_PSOC_ECB3.1_WS</v>
-<v>LL_PSOC_ECB3.1_WS\P00_Template</v>
-<v>LL_PSOC_ECB3.1_WS\P01_Bootloader</v>
-<v>LL_PSOC_ECB3.1_WS\P02_Blink_LED_Bootloadable</v>
-<v>LL_PSOC_ECB3.1_WS\P03_USBUART_Control_LED</v>
-<v>LL_PSOC_ECB3.1_WS\P04_CAN_Basic</v>
 <v>LL_PSOC_ECB3.1_WS\P04a_CAN_TX_Test</v>
 <v>LL_PSOC_ECB3.1_WS\P04b_CAN_RX_Test</v>
 <v>LL_PSOC_ECB3.1_WS\P05_IMU_BNO085_Test</v>
 <v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\TopDesign</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Pins</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Analog</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Clocks</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Interrupts</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\DMA</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\System</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Directives</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\Flash Security</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\P06_IMU_BNO085_WIP.cydwr\EEPROM</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Header Files</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Header Files\cyapicallbacks.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Header Files\IMU_BNO085.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2.c</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_err.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_hal.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_hal_psoc5.c</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_SensorValue.c</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_SensorValue.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_util.c</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\sh2_util.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\shtp.c</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\library\IMU_BNO085\shtp.h</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Source Files</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Source Files\main.c</v>
+<v>LL_PSOC_ECB3.1_WS\P06_IMU_BNO085_WIP\Generated_Source</v>
 <v>LL_PSOC_ECB3.1_WS\P07_IMU_BNO085_SPI</v>
 <v>LL_PSOC_ECB3.1_WS\P08_IMU_BNO085_MAT6</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\TopDesign</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\Pins</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\Analog</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\Clocks</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\Interrupts</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\DMA</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\System</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\Directives</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\Flash Security</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\P09_Bootloader.cydwr\EEPROM</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Header Files</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Header Files\cyapicallbacks.h</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Source Files</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Source Files\main.c</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5\Bootloader</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5\BUZZER</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5\Clock_1M</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5\cy_boot</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5\CyScBoostClk</v>
-<v>LL_PSOC_ECB3.1_WS\P09_Bootloader\Generated_Source\PSoC5\Em_EEPROM_Dynamic</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 <CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="">

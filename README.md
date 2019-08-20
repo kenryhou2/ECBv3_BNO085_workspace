@@ -13,7 +13,7 @@ Tested build environment:
 # Software
 - C programming Language.
 - PSoC Creator Schematic GUI
-
+- Serial terminal (Arduino Serial monitor and serial plotter works well)
 # Projects
 
 - P00_Blink_LED: Basic IO toggle test
@@ -33,7 +33,7 @@ P06 Project Details.
 # Quick Start
 - Using the P06 Code, one can successfully program the ECBv3 board to output three sensor fields: Orientation, linear acceleration, angular velocity in the form of 10 floats at a rate of 200 Hz from the PSoC. 
 
-1. Setup
+1. **Setup**
 	1. Obtain code by pulling from this remote master. Folder should contain a PSoC Creator workspace with projects specified above. 
 	2. Once the workspace is open, you will find a directory of projects on the left hand side of the IDE. Right click on P06_IMUBNO085_WIP and select `Set as Active Project`.
 	3. Within `main.c`, configure the use modes for the board by commenting or uncommenting the following flags.
@@ -41,12 +41,12 @@ P06 Project Details.
 		- `#define DATA_OUTPUT_MODE` indicates that the PSoC is outputting IMU data as **floats** rather than strings. In this mode, the `printOut()` function is disabled, meaning there are no string outputs from the PSoC. This is the intended mode of use for the Blaser or MAT6 projects where the 10 floats of IMU information are needed through USB serial connection. **An important note:** In order for the PSoC to successfully output IMU float data, **both USBUART_MODE and DATA_OUTPUT_MODE need to be active.** Solely DATA_OUTPUT_MODE activated will result in no USB serial capability by the PSoC, which is useful in debug mode when one wants to see the procedure of outputting float data step by step.
 		- If DATA_OUTPUT_MODE is undefined, there is an implicit mode of outputting strings. In this mode, printOut() function will work and can print any helper messages to the serial output. Like with DATA_OUTPUT_MODE, **this mode requires USBUART_MODE to be able to serially output strings to terminal.**
 
-2. Program
+2. **Program**
 	1. After configuring the outputs, the board must be programmed. The method of programming is determined by the hardware in two possible configurations. The first is traditionally with the miniprog3 programmer/debugger through SWD connection. The second is through bootloading the corresponding application/project onto the board. Check the `TopDesign.cysch` file for a Bootloadable component. If it is enabled, then bootloader is configured, which should be as default for this project.
 	2. If the bootloadable is enabled, plug the board directly to the computer with USB and open the bootloader host under <Tools> in the taskbar. Further instructions to using the bootloader host can be found in the [Bootloader User Guide]((https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit).
 	3. If bootloadable is not enabled, use the miniprog3 and select program under <Debug> in the taskbar. You may need to select the device, port acquire, and then program. 
 
-3. Use
+3. **Use**
 	If the bootloadable is enabled, there will be a brief ~3 Second bootloader program being run indicated by a rapidly blinking blue LED. Once the bootloader program has finished, the IMU application will run and output according to the configured output modes from the Setup.
 	While the program is running there are serveral LED indicators for the status of the IMU.
 	1. At the beginning of the IMU application, the IMU is initializing and setting up a USB connection. While the board is doing this it periodically activates the red LED in addition to the blue and green LEDs. The RGB LED will look like it is blinking between red and orange. 
@@ -57,9 +57,16 @@ P06 Project Details.
 	To view the outputs, a script needs to be created to parse the 10 output floats in the following encoding: [float i, float j, float k, float r, float x, float y, float z, float wx, float wy, float wz]. The first four floats are for a quaternion for orientation, the next three floats are linear acceleration in x, y, z axes, and the last three floats are angular velocities along x, y, z axes.
 
 # IMU Code Full Procedure Description
-- Initialization
-- Servicing
-- Printing Data
+- Relavent File Brief Descriptions:
+	- Main.c: (User generated code) Contains high level functions for initializing hardware, configuring sensor settings, obtaining data repeatedly from IMU, and printing IMU information. Outline of code that runs through series of stages described below.
+	- Sh2_hal_psoc5.c (User generated code) Contains low level functions for communicating between the PSoC and the sensorhub/IMU with SHTP protocol. This includes, reading/writing with I2C, creating timestamps on microsecond scale, and opening/closing connection between the PSoC and the sensorhub. In our case, the sensorhub is the IMU. 
+	- sh2.c: Library code
+	- shtp.c: Library code
+
+1. Initialization:
+
+2. Servicing
+3. Printing Data
 
 # Useful Links
 - [BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
