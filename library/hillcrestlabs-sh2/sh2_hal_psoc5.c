@@ -38,7 +38,14 @@ enum BusState_e {
 };
 
 enum BusState_e I2C_bus_state;
-static uint8_t attention_needed = 0;
+static uint8_t attention_needed = 0; //flag for when the IMU activates interrupt pin
+
+// HAL read variables (global for optimization)
+volatile uint16_t leng; //stores the length of the payload.
+volatile uint32_t result; //intermediate value for returing status of each I2C read.
+uint16_t r; //Used for calculating rem-len in length case 2.
+uint8_t rem_len; //the uint8_t version of r. converted for the I2C read parameter.
+uint8_t temp_buf[256] = {0};
 
 // Receive Buffer
 static uint8_t rx_buf[SH2_HAL_MAX_TRANSFER_IN];      // data receive buffer from IMU, max length 384
@@ -54,11 +61,11 @@ static uint8_t IMU_READY = 0;
 //Timer constants
 static uint32_t current_time = 0;
 volatile uint32_t rx_timestamp_us;            // timestamp of INTN event
-
+static uint32_t total_time = 0;
 extern int printOut(char str[64]);
 
 /* Time Keeping Code 
-   The timer keeps track of time with respect to microseconds between its start and stop.
+   -The timer keeps track of time with respect to microseconds between its start and stop.
    How the timer works:
    - Linked to the PSoC Bus Clock, the timer has a counter and an interrupt.
    - The counter decrements at a specified rate from a value called a period. (Hence the time for the counter to reach from start to 0 is a period)
@@ -69,16 +76,37 @@ extern int printOut(char str[64]);
 CY_ISR(TIMER_ISR_HANDLER){
     //Every time the timer completes, add to the time counter
     current_time += TIMER_US_ReadPeriod();   
-    //STAMP_ISR_ClearPending();
+    //STAMP_ISR_ClearPending(); //For some reason Timer autoclears this interrupt. I believe Datasheet says register clears on read.
 }
 
 uint32_t get_timestamp()
 {
+    //return total_time;
     uint32_t raw_timer_total_time = current_time + (uint32_t)TIMER_US_ReadCounter(); //What if get_timestamp in between periods?
-    return (raw_timer_total_time/29); //Dependent on the BUS CLK speed.
-    // the raw_timer_total_time value is based on clock speed of the Timer. Conversion: 24 raw clocks roughly equal to one us.
+    return (raw_timer_total_time/24); //Dependent on the BUS CLK speed.
+    //the raw_timer_total_time value is based on clock speed of the Timer. Conversion: 24 raw clocks roughly equal to one us. Consistent with a 24MHz clock.
 }
 
+void test_TimerUs() //For debugging. IMU should be taking measurements in us.
+{
+    printOut("Test Timer\r\n");
+    volatile uint32_t time1 = 0;
+    volatile uint32_t time2 = 0;
+    LED_R_Write(1);
+    time1 = get_timestamp();
+    CyDelay(5000); //~24,000 clocks for 1 millisecond ~ 1000 microsecond (us). 
+                     //~29 clocks for one microsecond.
+    time2 = get_timestamp(); //note CyDelay is inaccurate after time more than 1 second.... but Time stamps should be correct.
+    LED_R_Write(0);
+    sprintf(str,"time1: %u time2: %u\r\n",time1,time2);
+    printOut(str); //Difference in the two times should be 1000 with time2 being the later time.
+}
+
+/*IMU Interrupt Functions
+    - IMU activates the interrupt active low for when it needs attention. This for reading data or writing commands from the MCU to the IMU.
+    - IMU interrupt pin periodically activating low is a key sign that the IMU is working.
+    - IMU enable and disable interrupt handler functions... not really needed.
+*/
 CY_ISR(IMU_ISR_HANDLER)
 {
     IMU_READY = 1;
@@ -86,15 +114,6 @@ CY_ISR(IMU_ISR_HANDLER)
     attention_needed = 1;
     IMU_INT_ClearInterrupt();
 }
-
-static void imu_i2c_stop(void){
-    IMU_I2C_Stop();
-}
-
-//For ECBv3, we don't need to set the BOOT pin to I2C bc it is hardwired.
-//static void imu_set_boot(uint8_t val){
-//    IMU_BOOT_Write(val);
-//}
 
 static void imu_disable_ints(void){
     IMU_ISR_INT_Disable();
@@ -104,7 +123,35 @@ static void imu_enable_ints(void){
     IMU_ISR_INT_Enable();
 }
 
-uint16_t imu_reset(){ //function pulls IMU RST pin active low and then deasserts. Also has debugging capability.
+
+/* Hardware Boot Functions
+    - For ECBv3, we don't need to set the BOOT pin to I2C bc it is hardwired.
+
+*/
+//static void imu_set_boot(uint8_t val){
+//    IMU_BOOT_Write(val);
+//}
+
+/* IMU Interrupt Poll function
+    - For debugging, reads in the current state of the IMU interrupt pin.
+    - Could someday replace the interrupt functionality.
+*/
+int poll_IMU_INT() 
+{
+    int intval = IMU_INT_Read();  
+    sprintf(str,"interrupt value: %d\r\n",interruptval);
+    printOut(str);
+    return intval;
+}
+static void imu_i2c_stop(void){
+    IMU_I2C_Stop();
+}
+
+/*IMU Reset Function
+    - function pulls IMU RST pin active low and then deasserts. 
+     -Commented out string printouts that were used for debugging
+*/
+uint16_t imu_reset(){ 
 //    printOut("IMU Hardware Resetting // Pin pulled LOW\r\n");
 //    int val = IMU_RST_Read();
 //    sprintf(str,"IMU_RST before reset: %d\r\n",val);
@@ -134,28 +181,6 @@ uint16_t imu_reset(){ //function pulls IMU RST pin active low and then deasserts
     return count;
 }
 
-int poll_IMU_INT() //For debugging, reads in the current state of the IMU interrupt pin.
-{
-    int intval = IMU_INT_Read();  
-    sprintf(str,"interrupt value: %d\r\n",interruptval);
-    printOut(str);
-    return intval;
-}
-
-void test_TimerUs() //For debugging. IMU should be taking measurements in us.
-{
-    printOut("Test Timer\r\n");
-    volatile uint32_t time1 = 0;
-    volatile uint32_t time2 = 0;
-    CyDelay(10);
-    time1 = get_timestamp();    
-    CyDelayUs(1000); //~24,000 clocks for 1 millisecond ~ 1000 microsecond (us). 
-                     //~29 clocks for one microsecond.
-    time2 = get_timestamp(); 
-    sprintf(str,"time1: %u time2: %u\r\n",time1,time2);
-    printOut(str); //Difference in the two times should be 1000 with time2 being the later time.
-}
-
 static int sh2_i2c_hal_open(sh2_Hal_t *self){
     
     //Init flags 
@@ -178,6 +203,7 @@ static int sh2_i2c_hal_open(sh2_Hal_t *self){
   
     //Initialize Timer tc interrupt
     STAMP_ISR_StartEx(TIMER_ISR_HANDLER);
+    //TIMESTAMP_ISR_StartEx(TIMESTAMP_ISR_HANDLER);
     //printOut("Timer TC Interrupt Initialized\r\n");
     
     CyDelay(STARTUP_DELAY_MS); //Wait for components to be ready for STARTUP_DELAY_MS
@@ -215,28 +241,31 @@ static void sh2_i2c_hal_close(sh2_Hal_t *self){
 }
  
 /*HAL_READ Function Notes
-* I2C Reads are encased within a do-while loop and a delay to continually check the status of the read. The delays are necessary for the I2C to finish processing.
-* The HAL Read function is time critical, meaning if you put too many print statements or delays, it will affect the timeliness of the sh2_open() function in main.
-* The Sh2_open() function uses the HAL read to read in the initial SHTP advertisement packet.
-* The HAL read function iterates through multiple bus stages, and returns zero unless it successfully reaches the last I2C bus stage where it returns payload length.
-* This HAL read function behaves with the same logic as the STM version.
-* And when HAL read is called, in some function, SHTP_service() for example, SHTP_service is called multiple times, therefore HAL_read is called multiple times, thus cycling through all the bus stages,
-finally reaching the last stage where the transfer is complete.
-* Beware of the I2C configurations of the IMU_I2C_MasterReadBuf function. It is specific to the hardware. For example, the cnt parameter in the function is uint8_t in the PSoC 5LP and uint16_t in the PSoC 4.
-* Not too sure why HAL_MAX_TRANSFER_IN is 384 bytes, but I kept consistent with STM online version.
-*/
+    - The HAL read function iterates through multiple I2C bus stages, and returns zero unless it successfully reaches the last I2C bus stage where it returns payload length.
+    - I2C Reads are encased within a do-while loop to continually check the status of the read. The loop delays are necessary for the I2C to finish processing.
+    - The HAL Read function is time critical, meaning if you put too many print statements or delays, it will affect the timeliness of the sh2_open() function in main.
+    - The Sh2_open() function uses the HAL read to read in the initial SHTP advertisement packet.
+    - This HAL read function behaves with the same logic as the STM version.
+    - And when HAL read is called, in some function, SHTP_service() for example, SHTP_service is called multiple times, therefore HAL_read is called multiple times, thus cycling through all the bus stages,
+      finally reaching the last stage where the transfer is complete.
+    - Beware of the I2C configurations of the IMU_I2C_MasterReadBuf function. It is specific to the hardware. For example, the cnt parameter in the function is uint8_t in the PSoC 5LP and uint16_t in the PSoC 4.
+    - Not too sure why HAL_MAX_TRANSFER_IN is 384 bytes, but consistent with STM implementation.
+    - This function is called very often from Shtp_service() which is called by SH2_Service().
 
-static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){
+    - This read function operates on the SHTP protocol, which states that every message from the IMU is preceded with a 4 byte SHTP Header.
+    - This header includes the length of the payload, sequence number, and what channel the data is transferring.
+    - Within this Read function, we use the SHTP header to check the length of the payload. 
+    - The length is found using bitwise operations.
+*/
+static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t){    
     if(I2C_bus_state == BUS_IDLE && attention_needed)
     {
-        uint32_t result; //Used for debugging and returning the status of each I2C read.
-        
         //I2C Read statement start
         do{
             result = IMU_I2C_MasterReadBuf(ADDR_SH2_0, rx_buf, READ_LEN,IMU_I2C_MODE_COMPLETE_XFER);
             while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
             {
-                CyDelayUs(1); //Note this delay is necessary here so the I2C read can finish copying to buffer.
+                //Note this looping is necessary here so the I2C read can finish copying to buffer.
             }
         }while(result != IMU_I2C_MSTR_NO_ERROR);
         //I2C Read statement end
@@ -257,53 +286,53 @@ static int sh2_i2c_hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uin
         {
             I2C_bus_state = BUS_GOT_LEN;
             //printOut("BUS_GOT_LEN\r\n");
-            volatile uint16_t len = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int                                                                       
-            //len checks
-            volatile uint32_t result;
-            if(len <= 0xFF) //CASE 1: Length of cargo is less than max HAL transfer size and less than the I2C max transfer size. 
+            leng = (rx_buf[0] + (rx_buf[1] << 8)) & ~0x8000;    //Converts the SHTP length field from bytes to an int                                                                       
+            //length checks
+            if(leng <= 0xFF) //CASE 1: Length of cargo is less than max HAL transfer size and less than the I2C max transfer size. 
             {
-                
                 do
                 {
-                    result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, (uint8_t)len, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
+                    result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, (uint8_t)leng, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
                     while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
                     {
-                        CyDelayUs(1);
+                        
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
                 
-                payload_len = len;
+                payload_len = leng;
             }
             
             else        //CASE 2: Length of cargo is greater than I2C max transfer size.  Has two sub cases
                         //(Subcase 1: where length is greater than both I2C max and HAL max transfer sizes)
                         //(Subcase 2: where length is greater than I2C max but less than HAL max transfer size)
             {
-                if(len > SH2_HAL_MAX_TRANSFER_IN)       //If the length of message is more than max HAL transfer, limit to max HAL transfer
-                    len = SH2_HAL_MAX_TRANSFER_IN;      //At this point, worst case message would be a msg size 384 bytes.
-                uint16_t r = len - 0xFF;                //if the length of message is less than max HAL transfer, but more than max I2C transfer, make a rem_len to read in the remaining bytes after the initial max I2C read.
+                if(leng > SH2_HAL_MAX_TRANSFER_IN)       //If the length of message is more than max HAL transfer, limit to max HAL transfer
+                    leng = SH2_HAL_MAX_TRANSFER_IN;      //At this point, worst case message would be a msg size 384 bytes.
+                r = leng - 0xFF;                //if the length of message is less than max HAL transfer, but more than max I2C transfer, make a rem_len to read in the remaining bytes after the initial max I2C read.
                 do
                 {
                     result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,rx_buf, 0xFF, IMU_I2C_MODE_COMPLETE_XFER);    //read in the total message now.
+                    
                     while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
                     {
-                        CyDelayUs(1);
+                       
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
                 
-                uint8_t rem_len = (uint8_t)r;           //This is the raw remaining values we want. Will add to it 4 bytes for the header in the I2C read
-                uint8_t temp_buf[256] = {0};            //Store the remaining bytes of the message into temp_buf, but recall that each I2C read from the IMU is prefixed with 4 byte SHTP header.
+                rem_len = (uint8_t)r;           //This is the raw remaining values we want. Will add to it 4 bytes for the header in the I2C read
+                                                //Store the remaining bytes of the message into temp_buf, but recall that each I2C read from the IMU is prefixed with 4 byte SHTP header.
                 
                 do
                 {
                     result = IMU_I2C_MasterReadBuf(ADDR_SH2_0,temp_buf, rem_len+0x04,IMU_I2C_MODE_COMPLETE_XFER);    //read in the rest of the message now and place into tempbuf. Watch out for that header! Put in a 4 byte offset.
                     while (0u == (IMU_I2C_MasterStatus() & IMU_I2C_MSTAT_RD_CMPLT))
                     {
-                        CyDelayUs(1);
+                        
                     }
                 }while(result != IMU_I2C_MSTR_NO_ERROR);
 
                 memcpy(rx_buf + 0xFF,temp_buf + 0x04, rem_len); //copying the remainder transfer from temp_buf without the 4 byte header into rx_buf
+               
                 payload_len = 0xFF + rem_len; //Reset the payload_len to the length entirety of the two I2C reads
             }//end else
             
@@ -374,7 +403,7 @@ static sh2_Hal_t sh2Hal;
 
 sh2_Hal_t *sh2_hal_init(void)
 {
-    //Initializing all the member functions of the SH2 struct that will deal with all things IMU.
+    //Initializing all the low level member functions of the SH2 struct that will deal with all things IMU.
     sh2Hal.open = sh2_i2c_hal_open;     
     sh2Hal.close = sh2_i2c_hal_close;
     sh2Hal.read = sh2_i2c_hal_read;  //This has to complete under ADVERT_TIMEOUT_US in order to obtain a successful advertisemment packet read.

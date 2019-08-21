@@ -1726,7 +1726,6 @@ int sh2_open(sh2_Hal_t *pHal,
         now_us = pSh2->pHal->getTimeUs(pSh2->pHal);
     }
     // No errors.
-    CyDelayUs(1);
     return SH2_OK;
 }
 
