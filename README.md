@@ -43,7 +43,7 @@ Tested build environment:
 
 2. **Program**
 	1. After configuring the outputs, the board must be programmed. The method of programming is determined by the hardware in two possible configurations. The first is traditionally with the miniprog3 programmer/debugger through SWD connection. The second is through bootloading the corresponding application/project onto the board. Check the `TopDesign.cysch` file for a Bootloadable component. If it is enabled, then bootloader is configured, which should be as default for this project.
-	2. If the bootloadable is enabled, plug the board directly to the computer with USB and open the bootloader host under <Tools> in the taskbar. Further instructions to using the bootloader host can be found in the [Bootloader User Guide]OB(https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit).
+	2. If the bootloadable is enabled, plug the board directly to the computer with USB and open the bootloader host under <Tools> in the taskbar. Further instructions to using the bootloader host can be found in the [Bootloader User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit).
 	3. If bootloadable is not enabled, use the miniprog3 and select program under <Debug> in the taskbar. You may need to select the device, port acquire, and then program. 
 
 3. **Use**
