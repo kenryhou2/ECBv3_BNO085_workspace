@@ -25,7 +25,7 @@ Tested build environment:
 -P05_IMU_BNO085_Test: Original adaptation of IMU code from PSoC4 to PSoC5LP. Non working.
 -P06_IMU_BNO085_WIP: Work in progress adaptation of IMU code from PSoC4 to PSoC5LP with I2C communication between PSoC and IMU. Successful implementation and configurable outputs for biorobotics applications. Current data output mode: Outputs 6 axis rotation vector, linear accelration, and gyroscope values at ~200 Hz, in quaternion, linear acceleration (xyz), and angular velocity (wx,wy,wz) format respectively.
 -P07_IMU_BNO085_SPI: SPI implementation of P06, goal is to obtain ~6x faster output with SPI communication between IMU and PSoC. Not yet working! and ECBv3 Board needs more hardware modifications like reset and interrupt pins, along with slave select and other SPI specific pins pulled to the right polarity.
--P08_IMU_BNO085_MAT6: Adaptation of IMU code to another ECB, this time with a different PSoC processor. Hardware pins are changed and performs same functionality as P06.
+-P08_IMU_BNO085_MAT6: Adaptation of IMU code to another ECB, this time with a different PSoC processor. Hardware pins are changed and performs same functionality as P06. **There is one significant hardware difference in this project where the enable pin of the 3.3V voltage regulator was not pulled high.** Therefore we manually pulled it high through the code, and called it ENABLE_3V_PIN.
 -P09_MAT6_Bootloader: Bootloader project for MAT6 ECB.
 
 # P06 Project Details.
@@ -55,7 +55,7 @@ If the bootloadable is enabled, there will be a brief ~3 Second bootloader progr
 	3. After a certain period of time, the Red LED should begin to periodically activate again, meaning the IMU has been calibrated onboard the PCB. If the Red light has not lit up after the initialization, it means the IMU is still dynamically calibrating  and the environment may not be constant enough for the IMU. This will result in less accurate outputs.
 	**Note:** If the bootloadable is not enabled, the IMU will proceed directly to the IMU initialization stage, skipping the blue LED blink stage.
 
-	To view the outputs, a script needs to be created to parse the 10 output floats in the following encoding: [float i, float j, float k, float r, float x, float y, float z, float wx, float wy, float wz]. The first four floats are for a quaternion for orientation, the next three floats are linear acceleration in x, y, z axes, and the last three floats are angular velocities along x, y, z axes.
+To view the outputs, a script needs to be created to parse the 10 output floats in the following encoding: [float i, float j, float k, float r, float x, float y, float z, float wx, float wy, float wz]. The first four floats are for a quaternion for orientation, the next three floats are linear acceleration in x, y, z axes, and the last three floats are angular velocities along x, y, z axes.
 
 ## IMU Code Full Procedure Description
 - Relevent File Brief Descriptions:
@@ -67,11 +67,23 @@ If the bootloadable is enabled, there will be a brief ~3 Second bootloader progr
 - [SH2 Datasheet](https://cdn.sparkfun.com/assets/4/d/9/3/8/SH-2-Reference-Manual-v1.2.pdf)
 - [SH2 specifics of SHTP Datasheet](https://www.hillcrestlabs.com/downloads/sh-2-shtp-reference-manual)
 - [SHTP Datasheet](https://cdn.sparkfun.com/assets/7/6/9/3/c/Sensor-Hub-Transport-Protocol-v1.7.pdf)
-- In addition, although I believe it is outdated, there is an SH-2 user guide provided here with some more information on the SH-2 API. Warning: some of the API functions are not accurate to the ones we use, for example, sh2_initialize(). But a lot of the structs are still consistent with our implementation.
+- In addition, although I believe it is outdated, there is an SH-2 user guide provided here with some more information on the SH-2 API. Warning: some of the API functions are not accurate to the ones we use, for example, sh2_initialize(). But they use a lot of the structs that are still consistent with our implementation.
 - [Outdated SH2 User Guide](https://github.com/hcrest/bno080-driver/blob/master/UserGuide.pdf)
 
+###Chronological Timeline of IMU Data Reading Process
 1. Initialization:
-
+- The program starts by starting all hardware not associated with the IMU. This includes PWM, Buzzer,and USBFS components. 
+- Then the IMU setup function is called. This creates a Hardware Abstraction Layer (HAL) variable and initializes it by creating pointers to specific HAL functions within the SH2_hal_psoc5.c file.
+- The function then proceeds to open an instance of the HAL variable with the SH2_open() function within sh2.c.
+- The Sh2_open function performs a variety of actions including setting up callback functions, setting up important initialization flags, such as **resetComplete and advertDone**, and calling the library defined SHTP_open() function. The most important thing to notice about the SHTP_open() function during initialization is that it is watching for an SHTP advertisement packet coming from the IMU. During initialization, the program sets a flag for Advert Requested, which can be seen in the SHTP_open() function. - The SHTP advertisement packet, like all transfers from the IMU is preceded by an SHTP header, and contains the necessary information to configure the SHTP communication protocols to be able to receive useful data from the IMU. From observation, the SHTP advertisement packet should be around 276 bytes. Specifically, it contains channel assignments. For more information on the advertisement packet, take a look at the SHTP datasheet, and SH2 Specifics of SHTP Datasheet. In addition, the SHTP advertisement will be outputted from the IMU once it senses that its reset pin has been activated. Therefore, the active reset pin is necessary for this IMU.
+- The SHTP open() function, in addition, calls the user generated SH2_i2c_HAL_open() function.
+- The SH2_i2c_HAL_open() initializes IMU hardware components such as the timer, I2C bus, and interrupt andler. The function also manually resets the IMU active low, which prompts an advertisement packet.
+- When the SH2_Hal_open() function returns, the SHTP_open() function finishes and also returns back to SH2_open().
+- The rest of the SH2_open() function is spent servicing the IMU in order to read this advertisement packet in a while loop. There is a time-out condition where if the IMU doesn't send the advertisement in time or at all, the time-out will occur and the IMU will not be properly initialized. The program must service the IMU so that the entire advertisement packet is read. This initilization servicing is performed by the shtp_service() function. It ultimately calls the user generated sh2_i2c_hal_read() function and also applies the proper callbacks to the recieved information to parse the data for each transfer.
+-if the advertisement packet successfully transfers, the MCU will now have a clear idea of how to communicate with the IMU.
+-At the end of the Sh2_open() function, it will return SH2_OK, and the flags, pSh2->resetComplete and pSh2->advertDone should be true. If this is not the situation, the initialization did not occur successfully.
+- Otherwise, the IMU should now be ready to be serviced and output data and recieve commands. 
+- The SH2_HAL_open() function 	
 2. Servicing
 3. Printing Data
 

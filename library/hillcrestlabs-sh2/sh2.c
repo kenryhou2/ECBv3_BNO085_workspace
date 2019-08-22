@@ -1673,8 +1673,10 @@ int sh2_open(sh2_Hal_t *pHal,
     sh2_t *pSh2 = &_sh2;
     
     // Validate parameters
-    if (pHal == 0) return SH2_ERR_BAD_PARAM;
-
+    if (pHal == 0)
+    {
+        return SH2_ERR_BAD_PARAM;
+    }
     // Clear everything in sh2 structure.
     memset(&_sh2, 0, sizeof(_sh2));
         

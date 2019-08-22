@@ -121,6 +121,29 @@
         <Data key="sync_with_bus_clk" value="True" />
         <Data key="user_set_domain" value="False" />
       </Group>
+      <Group key="14698c51-ba83-47d0-a286-50e19c873561">
+        <Data key="check_tolerance" value="True" />
+        <Data key="clock_version" value="v1" />
+        <Data key="derive_type" value="AUTO" />
+        <Data key="desired_freq" value="8" />
+        <Data key="desired_unit" value="6" />
+        <Data key="divider" value="3" />
+        <Data key="domain" value="DIGITAL" />
+        <Data key="enabled" value="True" />
+        <Data key="minus_accuracy" value="0.25" />
+        <Data key="minus_tolerance" value="5" />
+        <Data key="name" value="Clock_7" />
+        <Data key="netlist_name" value="Clock_7" />
+        <Data key="placement" value="AUTO" />
+        <Data key="plus_accuracy" value="0.25" />
+        <Data key="plus_tolerance" value="5" />
+        <Data key="scope" value="LOCAL" />
+        <Data key="src_clk_id" value="61737EF6-3B74-48f9-8B91-F7473A442AE7" />
+        <Data key="src_clk_name" value="MASTER_CLK" />
+        <Data key="start_on_reset" value="True" />
+        <Data key="sync_with_bus_clk" value="True" />
+        <Data key="user_set_domain" value="False" />
+      </Group>
       <Group key="99318abd-082f-49cb-8464-fff440ff9f58">
         <Data key="check_tolerance" value="True" />
         <Data key="clock_version" value="v1" />
@@ -397,6 +420,7 @@
       <Data key="3b1333e7-820c-4cfe-b641-c6e924e23102" value="Clock_2" />
       <Data key="6f2d57bd-b6d0-4115-93da-ded3485bf4ed/5ece924d-20ba-480e-9102-bc082dcdd926" value="IMU_I2C_BusClock" />
       <Data key="75e556a2-c51f-43d9-9af7-69b7dcc18504" value="Clock_1" />
+      <Data key="14698c51-ba83-47d0-a286-50e19c873561" value="Clock_7" />
       <Data key="99318abd-082f-49cb-8464-fff440ff9f58" value="Clock_4" />
     </Group>
     <Group key="Pin">
@@ -408,6 +432,7 @@
       <Data key="631d37e3-6cf7-4de9-8fe0-1d4224080162" value="KEY3" />
       <Data key="5444f058-af2c-461d-bf06-cd29d0240f9c" value="IMU_BOOT" />
       <Data key="22863ebe-a37b-476f-b252-6e49a8c00b12" value="IMU_SDA" />
+      <Data key="27926d2e-25ec-4b06-9085-7fe69b3bcf7d" value="Pin_1" />
       <Data key="beca5e2d-f70f-4900-a4db-7eca1ed3126e/8b77a6c4-10a0-4390-971c-672353e2a49c" value="USBUART_Dm" />
       <Data key="beca5e2d-f70f-4900-a4db-7eca1ed3126e/618a72fc-5ddd-4df5-958f-a3d55102db42" value="USBUART_Dp" />
       <Data key="c0371cdf-0e81-45f6-a5dc-7dcd3d6d0f51" value="LED_B" />
@@ -3533,6 +3558,11 @@
     <Group key="22863ebe-a37b-476f-b252-6e49a8c00b12">
       <Group key="0">
         <Data key="Port Format" value="12,5" />
+      </Group>
+    </Group>
+    <Group key="27926d2e-25ec-4b06-9085-7fe69b3bcf7d">
+      <Group key="0">
+        <Data key="Port Format" value="0,4" />
       </Group>
     </Group>
     <Group key="beca5e2d-f70f-4900-a4db-7eca1ed3126e/8b77a6c4-10a0-4390-971c-672353e2a49c">
