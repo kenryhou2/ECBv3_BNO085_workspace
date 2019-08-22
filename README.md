@@ -96,18 +96,28 @@ To view the outputs, a script needs to be created to parse the 10 output floats 
 
 3. Servicing
 - Servicing is the act of reading and parsing our requested sensor field reports from the IMU.
-- Sensor data arrives from the IMU to the MCU in the form of I2C reads which are organized in reports. Each sensor type has its own report ID with sensor data in the payload. 
+- Sensor data arrives from the IMU to the MCU in the form of I2C reads which are organized in sensor events with reports. Each sensor type has its own report ID with sensor data in the payload. 
 - The main functions involved with servicing include SensorHandler(), SH2_service, SHTP_service(), and checkCal();
 - SH2_service is called repeatedly which calls SHTP_service(), and essentially performs an I2C read into a payload buffer which is parsed byte by byte. The cursor then encounters a specific report and initiates a callback function call to deal with the report.
-- 
-4. Printing Data
+- Sensor Handler is one of the callback functions where it takes the sensor event passed in and decodes the report into useful data, such as our floats for output. The sensor values are then placed in a transmit buffer which is used as the vessel for output.
+- It's useful to visualize the flow of data in a series pipeline with an I2C transfer containing an SHTP header with a bunch of sensor events containing sensor reports with sensor field data. The exact composition of each transfer is not known exactly, but the composition of each I2C transfer from the IMU is not unifromly distributed with the enabled sensor field data. It makes sense that the sensor events are in the order of first arrival, so usually fused sensor fields have less sensor events than accelerometer sensor events in an I2C transfer. In other words, we would receive sensor events from fused sensors less frequently.
+- One interesting observation is that the gyroscope sensor event rate behaves strangely in comparison to the accelerometer sensor event rate or the fused sensor event rates. However, the raw gyroscope sensor event rate runs at an expected rate. I've contacted HillCrest Labs with about this discrepancy but they have not replied, and will update this readme once they do. 
+
+3. Printing Data and Output Efficiency
+- If enabling different sensor reports, there is an issue that not each sensor event will arrive at the same rate due to the nature of having different sensors and fused sensors. The IMU compensates for this by sending repeated values for the sensor until the event is updated. 
+- Note that the output can be defined by both frequency and uniqueness. In order to obtain the best output from the IMU, there needs to be a high frequency and unique values.
+- This is implemented by placing booleans "got_mag, got_rot, etc." as flag indicators to detect when new data is read in and is reset when output.
+- Factors that affect output efficiency include the bit rate of our I2C reads, number of sensors enabled, and sensor report interval congiguration. 
+- Finally, after each iteration of Sh2_service, the status bits of each sensor report are read that indicate accuracy of the specific sensor by a bitwise function. The accuracy bits are represented by two bits ranging from values [0 - 3]  where 0 is least accurate, and 3 is most accurate. Accuracy is dependent on the  dynamic calibration, so as the calibration sequence proceeds in a stable environment, the accuracy bits should tend to up 3. Once the accuracy bit is a value of 2 or greater for an arbitrary number of cycles, the program deems calibration is complete and saves the environment calibration configurations to flash. Therefore when the IMU starts up again in a similar environment, the calibration process should be tuned much more quickly.
+
+
 # Debugging Tips
-- pSh2->resetComplete and pSh2->advertDone
-- SH-2 API functions return an integer specifying status
-- IMU Interrupt
-- Timer Firing pin for output rates
-- Disabling DATA_OUTPUT_MODE for string outputs
-- Logic Analyzer or Oscilloscope on I2C pins
+- **pSh2->resetComplete and pSh2->advertDone**: These flags are indicators of the initialization process. If both true, the advertisement packet has been successfully read in by the MCU.
+- **SH-2 API functions return an integer specifying status**: The status return value of 0 means SH2_OK and the function successfully executed. A negative return value is an error. Additional details are within sh2_err.h.
+- **IMU Interrupt**: The IMU interrupt pin is good indicator for the IMU communicating properly. Once global interrupts are enabled on in the program after a restart, the IMU should pull the interrupt pin active low because it is about to output an unsolicited advertisement packet. Then, the interrupt pin activates every time it prepares to output data. 
+- Timer Firing pin for output rates: After obtaining data and printing out, the timer firing pin shouldtoggle, and it was used along with a logic analyzer for determining output data rates.
+- Disabling DATA_OUTPUT_MODE for string outputs:
+-Logic Analyzer or Oscilloscope on I2C pins: Viewing the I2C reads is a good indicator on the status of communication between the MCU and the IMU.
 - LEDs
 
 # Useful Links
@@ -130,25 +140,4 @@ README.md[+] [dos] (12:19 22/08/2019)                                           
 )
 
 
-3. Servicing
-- Servicing is the act of reading and parsing our requested sensor field reports from the IMU. 
-4. Printing Data
 
-# Debugging Tips
-- pSh2->resetComplete and pSh2->advertDone
-- SH-2 API functions return an integer specifying status
-- IMU Interrupt
-- Timer Firing pin for output rates
-- Disabling DATA_OUTPUT_MODE for string outputs
-- Logic Analyzer or Oscilloscope on I2C pins
-- LEDs
-
-# Useful Links
-- [BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
-- [SH2 Datasheet](https://cdn.sparkfun.com/assets/4/d/9/3/8/SH-2-Reference-Manual-v1.2.pdf)
-- [SH2 specifics of SHTP Datasheet](https://www.hillcrestlabs.com/downloads/sh-2-shtp-reference-manual)
-- [SHTP Datasheet](https://cdn.sparkfun.com/assets/7/6/9/3/c/Sensor-Hub-Transport-Protocol-v1.7.pdf)
-- [STM BNO085 Implementation](https://github.com/hcrest/sh2-demo-nucleo)
-- [Arduino BNO085 Implementation](https://github.com/sparkfun/Qwiic_IMU_BNO080/blob/master/Firmware/Tester/Tester.ino)
-- [Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
-- [Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
