@@ -70,22 +70,45 @@ To view the outputs, a script needs to be created to parse the 10 output floats 
 - In addition, although I believe it is outdated, there is an SH-2 user guide provided here with some more information on the SH-2 API. Warning: some of the API functions are not accurate to the ones we use, for example, sh2_initialize(). But they use a lot of the structs that are still consistent with our implementation.
 - [Outdated SH2 User Guide](https://github.com/hcrest/bno080-driver/blob/master/UserGuide.pdf)
 
-###Chronological Timeline of IMU Data Reading Process
+### Chronological Timeline of IMU Data Reading Process
 1. Initialization:
 - The program starts by starting all hardware not associated with the IMU. This includes PWM, Buzzer,and USBFS components. 
 - Then the IMU setup function is called. This creates a Hardware Abstraction Layer (HAL) variable and initializes it by creating pointers to specific HAL functions within the SH2_hal_psoc5.c file.
 - The function then proceeds to open an instance of the HAL variable with the SH2_open() function within sh2.c.
-- The Sh2_open function performs a variety of actions including setting up callback functions, setting up important initialization flags, such as **resetComplete and advertDone**, and calling the library defined SHTP_open() function. The most important thing to notice about the SHTP_open() function during initialization is that it is watching for an SHTP advertisement packet coming from the IMU. During initialization, the program sets a flag for Advert Requested, which can be seen in the SHTP_open() function. - The SHTP advertisement packet, like all transfers from the IMU is preceded by an SHTP header, and contains the necessary information to configure the SHTP communication protocols to be able to receive useful data from the IMU. From observation, the SHTP advertisement packet should be around 276 bytes. Specifically, it contains channel assignments. For more information on the advertisement packet, take a look at the SHTP datasheet, and SH2 Specifics of SHTP Datasheet. In addition, the SHTP advertisement will be outputted from the IMU once it senses that its reset pin has been activated. Therefore, the active reset pin is necessary for this IMU.
+- The Sh2_open function performs a variety of actions including setting up callback functions, setting up important initialization flags, such as **pSh2->resetComplete and pSh2->advertDone**, and calling the library defined SHTP_open() function. The most important thing to notice about the SHTP_open() function during initialization is that it is watching for an SHTP advertisement packet coming from the IMU. During initialization, the program sets a flag for Advert Requested, which can be seen in the SHTP_open() function. - The SHTP advertisement packet, like all transfers from the IMU is preceded by an SHTP header, and contains the necessary information to configure the SHTP communication protocols to be able to receive useful data from the IMU. From observation, the SHTP advertisement packet should be around 276 bytes. Specifically, it contains channel assignments. For more information on the advertisement packet, take a look at the SHTP datasheet, and SH2 Specifics of SHTP Datasheet. In addition, the SHTP advertisement will be outputted from the IMU once it senses that its reset pin has been activated. Therefore, the active reset pin is necessary for this IMU.
 - The SHTP open() function, in addition, calls the user generated SH2_i2c_HAL_open() function.
-- The SH2_i2c_HAL_open() initializes IMU hardware components such as the timer, I2C bus, and interrupt andler. The function also manually resets the IMU active low, which prompts an advertisement packet.
-- When the SH2_Hal_open() function returns, the SHTP_open() function finishes and also returns back to SH2_open().
+- The SH2_i2c_HAL_open() initializes IMU hardware components such as the timer, I2C bus, and interrupt handler. The function also manually resets the IMU active low, which prompts an advertisement packet. It is also important to note the significance of the IMU interrupt here as well. The IMU will pull the interrupt pin active low when it needs attention. This is the case when it is ready to output data, such as the SHTP advertisement packet or other IMU data. The interrupt is caught as a falling edge and then a boolean flag, Attention_needed is set true. The IMU interrupt pin being toggled is a good indicator that the IMU is not broken and can communicate with the MCU.
+- When the SH2_i2c_Hal_open() function returns, the SHTP_open() function finishes and also returns back to SH2_open().
 - The rest of the SH2_open() function is spent servicing the IMU in order to read this advertisement packet in a while loop. There is a time-out condition where if the IMU doesn't send the advertisement in time or at all, the time-out will occur and the IMU will not be properly initialized. The program must service the IMU so that the entire advertisement packet is read. This initilization servicing is performed by the shtp_service() function. It ultimately calls the user generated sh2_i2c_hal_read() function and also applies the proper callbacks to the recieved information to parse the data for each transfer.
 -if the advertisement packet successfully transfers, the MCU will now have a clear idea of how to communicate with the IMU.
--At the end of the Sh2_open() function, it will return SH2_OK, and the flags, pSh2->resetComplete and pSh2->advertDone should be true. If this is not the situation, the initialization did not occur successfully.
-- Otherwise, the IMU should now be ready to be serviced and output data and recieve commands. 
-- The SH2_HAL_open() function 	
-2. Servicing
-3. Printing Data
+-At the end of the Sh2_open() function, it will return SH2_OK, and the flags, **pSh2->resetComplete and pSh2->advertDone should be true.** If this is not the situation, the initialization did not occur successfully.
+- Otherwise, the IMU should now be ready to be configured, serviced to output data, and recieve commands.
+
+2. Configuration and Calibration
+- Now that the IMU has been setup correctly, we can configure it with SH-2 API commands to obtain different kinds of data at varying rates.
+- These actions are performed in the start_reports() and enableCal() functions.
+-start_reports() is where the user enables the sensor fields for output. There are numerous options all defined in the BNO085 Datasheet and SH-2 Reference manual/datasheet. For our default program, we are using the SH2_GYRO_INTEGRATED_RV and SH2_ACCELEROMETER. The Gyro integrated rotation vector has the capability to output a 6 axis dependent quaternion in the form of 4 floats, i, j, and real. It also can output gyroscope angular velocity data in the form of 3 floats, wx, wy, and wz. This gives angular velocity along the 3 respective axes. The accelerometer sensor field outputs linear accelerometer data including gravity in float form wrt three axes: x, y, z. These data outputs will be saved into a float buffer array during servicing.
+- The next configuration step is to set up a configure variable to set for the enabled sensors. The config struct contains member variables such as sensitivity, wakeupEnable, and report_rate. 
+- **A very important factor to note is that the output rate by the IMU will drop significantly for each enabled sensor.** This makes sense as the IMU has to work n times as hard for n sensors enabled, Thus theoretically decreasing the output rate by a factor of n. In addition, when configuring the sensor report_interval, there needs to be a significant difference in the values since the IMU will get overwhelmed by sensor data and the rate at which it will output will drop even more significantly than n times. This is just from observation through trial and error. For the specific setup, the GyroIntegrated_RV is set to a report interval of 5000 us or 200 Hz and the Accelerometer is set to an interval of 1000us of frequency of 1 KHz. 
+- In addition, certain sensor fields are made of fused sensors from the raw gyroscope, raw accelerometer, or raw magnetometer. They undergo a fusing process and more processing to obtain a special output such as the rotation vector. This leads it to have a greater report period in general when compared to a sole accelerometer output.
+
+
+| Syntax | Observed Frequency Values for Sensor Fields |
+| ----------- | ----------- | ------------- | ------------ |
+| Header | Title |
+| Paragraph | Text |
+3. Servicing
+- Servicing is the act of reading and parsing our requested sensor field reports from the IMU. 
+4. Printing Data
+
+# Debugging Tips
+- pSh2->resetComplete and pSh2->advertDone
+- SH-2 API functions return an integer specifying status
+- IMU Interrupt
+- Timer Firing pin for output rates
+- Disabling DATA_OUTPUT_MODE for string outputs
+- Logic Analyzer or Oscilloscope on I2C pins
+- LEDs
 
 # Useful Links
 - [BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
@@ -96,5 +119,3 @@ To view the outputs, a script needs to be created to parse the 10 output floats 
 - [Arduino BNO085 Implementation](https://github.com/sparkfun/Qwiic_IMU_BNO080/blob/master/Firmware/Tester/Tester.ino)
 - [Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
 - [Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
-
-

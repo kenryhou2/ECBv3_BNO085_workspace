@@ -1448,7 +1448,7 @@
   Copyright (c) 2001-2016 Actipro Software LLC.  All rights reserved.
   http://www.actiprosoftware.com
 
---><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="1012, 487" SelectedTabbedMdiWindow="5806074e-5dc0-4f39-8330-3cc7d35de438"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P08_IMU_BNO085_MAT6.cydsn\TopDesign\TopDesign.cysch" Guid="9c712a0d-8cf7-465b-a2e0-d5066159f91d" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P08_IMU_BNO085_MAT6.cydsn\main.c" Guid="5806074e-5dc0-4f39-8330-3cc7d35de438" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
+--><DocumentLayout Version="1.0"><LayoutData><TabbedMdiRootContainer Orientation="Horizontal"><TabbedMdiContainer Size="1012, 487" SelectedTabbedMdiWindow="5806074e-5dc0-4f39-8330-3cc7d35de438"><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P08_IMU_BNO085_MAT6.cydsn\TopDesign\TopDesign.cysch" Guid="9c712a0d-8cf7-465b-a2e0-d5066159f91d" /><DocumentWindow Key="C:\Users\Henry Kou\Documents\CMU_project\PSoC5_LuLi_implementation\P08_IMU_BNO085_MAT6.cydsn\main.c" Guid="5806074e-5dc0-4f39-8330-3cc7d35de438" /><ToolWindow Key="Start Page:bd4649ab-da6b-4d04-a663-c722b8bf99db:Start Page" Guid="719c85bf-5193-4ff7-9de9-9b5b8c757e0e" /></TabbedMdiContainer></TabbedMdiRootContainer><FloatingContainers /></LayoutData></DocumentLayout>]]></OpenDocsLayout>
 <config v="" />
 <AutoUpdate v="true" />
 </CyGuid_843a90a4-0c4b-4e44-991d-05e7fb117a21>
