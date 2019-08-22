@@ -90,13 +90,46 @@ To view the outputs, a script needs to be created to parse the 10 output floats 
 -start_reports() is where the user enables the sensor fields for output. There are numerous options all defined in the BNO085 Datasheet and SH-2 Reference manual/datasheet. For our default program, we are using the SH2_GYRO_INTEGRATED_RV and SH2_ACCELEROMETER. The Gyro integrated rotation vector has the capability to output a 6 axis dependent quaternion in the form of 4 floats, i, j, and real. It also can output gyroscope angular velocity data in the form of 3 floats, wx, wy, and wz. This gives angular velocity along the 3 respective axes. The accelerometer sensor field outputs linear accelerometer data including gravity in float form wrt three axes: x, y, z. These data outputs will be saved into a float buffer array during servicing.
 - The next configuration step is to set up a configure variable to set for the enabled sensors. The config struct contains member variables such as sensitivity, wakeupEnable, and report_rate. 
 - **A very important factor to note is that the output rate by the IMU will drop significantly for each enabled sensor.** This makes sense as the IMU has to work n times as hard for n sensors enabled, Thus theoretically decreasing the output rate by a factor of n. In addition, when configuring the sensor report_interval, there needs to be a significant difference in the values since the IMU will get overwhelmed by sensor data and the rate at which it will output will drop even more significantly than n times. This is just from observation through trial and error. For the specific setup, the GyroIntegrated_RV is set to a report interval of 5000 us or 200 Hz and the Accelerometer is set to an interval of 1000us of frequency of 1 KHz. 
-- In addition, certain sensor fields are made of fused sensors from the raw gyroscope, raw accelerometer, or raw magnetometer. They undergo a fusing process and more processing to obtain a special output such as the rotation vector. This leads it to have a greater report period in general when compared to a sole accelerometer output.
+- In addition, certain sensor fields are made of fused sensors from the raw gyroscope, raw accelerometer, or raw magnetometer. They undergo a fusing process and more processing to obtain a special output such as the rotation vector. This leads it to have a greater actual report period in general when compared to the individual accelerometer report interval.
+- The next step is calibration, which is performed in enableCal(). There are parameters to set which type of raw sensor to calibrate and by default they are all set to true. Then, the enableCal performs an Sh2 API call to perform dynamic calibration on each raw sensor. The dynamic calibration procedure is explained in the BNO085 datasheet as well as in the [IMU calibration datasheet](https://www.hillcrestlabs.com/downloads/bno080-sensor-calibration-procedure)
 
 
-| Syntax | Observed Frequency Values for Sensor Fields |
-| ----------- | ----------- | ------------- | ------------ |
-| Header | Title |
-| Paragraph | Text |
+3. Servicing
+- Servicing is the act of reading and parsing our requested sensor field reports from the IMU.
+- Sensor data arrives from the IMU to the MCU in the form of I2C reads which are organized in reports. Each sensor type has its own report ID with sensor data in the payload. 
+- The main functions involved with servicing include SensorHandler(), SH2_service, SHTP_service(), and checkCal();
+- SH2_service is called repeatedly which calls SHTP_service(), and essentially performs an I2C read into a payload buffer which is parsed byte by byte. The cursor then encounters a specific report and initiates a callback function call to deal with the report.
+- 
+4. Printing Data
+# Debugging Tips
+- pSh2->resetComplete and pSh2->advertDone
+- SH-2 API functions return an integer specifying status
+- IMU Interrupt
+- Timer Firing pin for output rates
+- Disabling DATA_OUTPUT_MODE for string outputs
+- Logic Analyzer or Oscilloscope on I2C pins
+- LEDs
+
+# Useful Links
+- [BNO085 IMU Datasheet](https://www.hillcrestlabs.com/downloads/bno080-datasheet)
+- [SH2 Datasheet](https://cdn.sparkfun.com/assets/4/d/9/3/8/SH-2-Reference-Manual-v1.2.pdf)
+- [SH2 specifics of SHTP Datasheet](https://www.hillcrestlabs.com/downloads/sh-2-shtp-reference-manual)
+- [SHTP Datasheet](https://cdn.sparkfun.com/assets/7/6/9/3/c/Sensor-Hub-Transport-Protocol-v1.7.pdf)
+- [STM BNO085 Implementation](https://github.com/hcrest/sh2-demo-nucleo)
+- [Arduino BNO085 Implementation](https://github.com/sparkfun/Qwiic_IMU_BNO080/blob/master/Firmware/Tester/Tester.ino)
+- [Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
+- [Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
+- [IMU calibration datasheet](https://www.hillcrestlabs.com/downloads/bno080-sensor-calibration-procedure)
+
+~
+
+~
+~
+README.md[+] [dos] (12:19 22/08/2019)                                                                                         94,388 Bot
+-- INSERT --
+)
+
+
 3. Servicing
 - Servicing is the act of reading and parsing our requested sensor field reports from the IMU. 
 4. Printing Data
