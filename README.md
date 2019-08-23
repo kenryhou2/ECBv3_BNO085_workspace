@@ -130,14 +130,11 @@ To view the outputs, a script needs to be created to parse the 10 output floats 
 - [Bootloader and Bootloadable User Guide](https://docs.google.com/document/d/1NsbHpMEDuHHZEE9elAJRFjD2x9ydBso8VCzAN2paOsE/edit)
 - [Miniprog 3 User Guide](https://www.cypress.com/file/44091/download)
 - [IMU calibration datasheet](https://www.hillcrestlabs.com/downloads/bno080-sensor-calibration-procedure)
-
-~
-
 ~
 ~
-README.md[+] [dos] (12:19 22/08/2019)                                                                                         94,388 Bot
+~
 -- INSERT --
-)
+
 
 
 
