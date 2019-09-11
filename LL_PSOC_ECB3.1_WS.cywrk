@@ -3,7 +3,7 @@
 <!--This file is machine generated and read. It is not intended to be edited by hand.-->
 <!--Due to this, there is no schema for this file.-->
 <CyGuid_2867d519-54d2-4c01-9830-c51cb08bc3dd type_name="CyDesigner.Common.ProjMgmt.Model.CyPrjMgmtWorkspaceSerialize" version="5" xml_contents_version="3" name="LL_PSOC_ECB3.1_WS" persistent="LL_PSOC_ECB3.1_WS.cywrk" platform="NOT_USED">
-<current_project name=".\P08_IMU_BNO085_MAT6.cydsn\P08_IMU_BNO085_MAT6.cyprj" />
+<current_project name=".\P06_IMU_BNO085_WIP.cydsn\P06_IMU_BNO085_WIP.cyprj" />
 <wrkspc_folders />
 <files />
 <projects>
@@ -19,6 +19,8 @@
 <v>.\P07_IMU_BNO085_SPI.cydsn\P07_IMU_BNO085_SPI.cyprj</v>
 <v>.\P09_Bootloader.cydsn\P09_Bootloader.cyprj</v>
 <v>.\P08_IMU_BNO085_MAT6.cydsn\P08_IMU_BNO085_MAT6.cyprj</v>
+<v>.\P10_IMU_BNO085_SensTile_Eigen.cydsn\P10_IMU_BNO085_SensTile_Eigen.cyprj</v>
+<v>.\P10_IMU_BNO085_SensTile_ECB.cydsn\P10_IMU_BNO085_SensTile_ECB.cyprj</v>
 </projects>
 <workspace_id v="7bb383c5-f4af-418e-b0b8-8563054e9a6e" />
 <WriteAppVersionLastSavedWith v="4.2.0.641" />

@@ -535,15 +535,14 @@ void IMU_setup()
 int main(void)
 {
     CyGlobalIntEnable; // Enable global interrupts.
-    
+   
     /****SYSTEM INITS****/
     
     USBUART_setup();             //Start USBUART start process
     PWM_LED_Start();             //Init debug LEDs and Buzzer... no audio though
     PWM_EN_Start();                 
     PWM_BUZZER_Start();
-    ENABLE_3V_PIN_Write(1);     //Physically pull the hardware pin port 0, pin 4 high to enable the 3.3V voltage regulator.
-    
+    IMU_BOOT_Write(1);
     LED_R_Write(1);             //Initialization LED_R signals IMU initialization in process. (Also if calibration is done)
     
     printOut("****IMU INITIALIZATION START****\r\n");

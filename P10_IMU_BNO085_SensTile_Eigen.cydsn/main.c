@@ -10,6 +10,8 @@
  * ========================================
 */
 
+//IMU code for eigenboard to use the sensortile BNO085 IMU. //For testing if the sensortile works.
+
 #include "project.h"
 #include "include/IMU_BNO085.h"
 #include <stdio.h> 
@@ -17,7 +19,7 @@
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
 #define DATA_OUTPUT_MODE                     //In order to debug, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
-
+//#define TIMER_FIRING_PIN                  //Uncomment this if firing pin is implemented in hardware. If not for the ECBv3 board, chances are no, so leave commented if in doubt.
 
 #define BUZZER_TIMER_CLK 8000000
 #define USBFS_DEVICE    (0u)
@@ -131,14 +133,17 @@ uint32_t getTdiff()
 }
 
 //Utility function
+
 void toggleFiringPin()
 {
+    #ifdef TIMER_FIRING_PIN
     if(firing_pin_state)
         TIMER_FIRING_PIN_Write(0);
     else
         TIMER_FIRING_PIN_Write(1);
         
     firing_pin_state = !firing_pin_state;
+    #endif
 }
 
 //Utility function for printing out string form of the IMU data. This is our printout during non Data output mode.
@@ -542,7 +547,7 @@ int main(void)
     PWM_LED_Start();             //Init debug LEDs and Buzzer... no audio though
     PWM_EN_Start();                 
     PWM_BUZZER_Start();
-    ENABLE_3V_PIN_Write(1);     //Physically pull the hardware pin port 0, pin 4 high to enable the 3.3V voltage regulator.
+    IMU_BOOT_Write(1);     //Physically pull the hardware pin port 0, pin 4 high to enable the 3.3V voltage regulator.
     
     LED_R_Write(1);             //Initialization LED_R signals IMU initialization in process. (Also if calibration is done)
     
