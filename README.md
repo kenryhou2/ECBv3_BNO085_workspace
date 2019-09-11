@@ -16,17 +16,19 @@ Tested build environment:
 - Serial terminal (Arduino Serial monitor and serial plotter works well)
 
 # Projects
-- P00_Blink_LED: Basic IO toggle test
-- P01_Bootloader: Bootloader project for the ECBv3 board, please link any biotloadable project the bin/hex file generated to this folder.
-- P02_Blink_LED_Bootloadable: Test project of using USBUART based bootloader to flash the ECB without MiniProg.
-- P03_USBUART_Control_LED: Basic test for bi-directional USBUART communication. Using keyboard inputs, LED RGB values will adjust to new values.
+- P00_Blink_LED: (Working) Basic IO toggle test
+- P01_Bootloader: (Working) Bootloader project for the ECBv3 board, please link any biotloadable project the bin/hex file generated to this folder.
+- P02_Blink_LED_Bootloadable: (Working) Test project of using USBUART based bootloader to flash the ECB without MiniProg.
+- P03_USBUART_Control_LED: (Working) Basic test for bi-directional USBUART communication. Using keyboard inputs, LED RGB values will adjust to new values.
 - P04_a_CAN_TX_Test
 - P04b_b_CAN_RX_Test
 - P05_IMU_BNO085_Test: Original adaptation of IMU code from PSoC4 to PSoC5LP. Non working.
-- P06_IMU_BNO085_WIP: Work in progress adaptation of IMU code from PSoC4 to PSoC5LP with I2C communication between PSoC and IMU. Successful implementation and configurable outputs for biorobotics applications. Current data output mode: Outputs 6 axis rotation vector, linear accelration, and gyroscope values at ~200 Hz, in quaternion, linear acceleration (xyz), and angular velocity (wx,wy,wz) format respectively.
+- P06_IMU_BNO085_WIP: (Working) Work in progress adaptation of IMU code from PSoC4 to PSoC5LP with I2C communication between PSoC and IMU. Successful implementation and configurable outputs for biorobotics applications. Current data output mode: Outputs 6 axis rotation vector, linear accelration, and gyroscope values at ~200 Hz, in quaternion, linear acceleration (xyz), and angular velocity (wx,wy,wz) format respectively.
 - P07_IMU_BNO085_SPI: SPI implementation of P06, goal is to obtain ~6x faster output with SPI communication between IMU and PSoC. Not yet working! and ECBv3 Board needs more hardware modifications like reset and interrupt pins, along with slave select and other SPI specific pins pulled to the right polarity.
-- P08_IMU_BNO085_MAT6: Adaptation of IMU code to another ECB, this time with a different PSoC processor. Hardware pins are changed and performs same functionality as P06. **There is one significant hardware difference in this project where the enable pin of the 3.3V voltage regulator was not pulled high.** Therefore we manually pulled it high through the code, and called it ENABLE_3V_PIN.
-- P09_MAT6_Bootloader: Bootloader project for MAT6 ECB.
+- P08_IMU_BNO085_MAT6: (Working) Adaptation of IMU code to another ECB, this time with a different PSoC processor. Hardware pins are changed and performs same functionality as P06. **There is one significant hardware difference in this project where the enable pin of the 3.3V voltage regulator was not pulled high.** Therefore we manually pulled it high through the code, and called it ENABLE_3V_PIN.
+- P09_MAT6_Bootloader: (Working) Bootloader project for MAT6 ECB.
+- P10_IMU_BNO085_SensTileECB: (Working) Adaptation of P06 for the sensortile like BNO085 IMU attachment to the ECBv3 board. Essentially the sensortile is an offboard attachment PCB with just the IMU. 
+- P10_IMU_BNO085_SensTileEigen: Same as the SensTileECB version except pinouts are to the Eigenboard. Actually haven't tested it.
 
 # P06 Project Details.
 
