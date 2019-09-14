@@ -134,5 +134,6 @@ To view the outputs, a script needs to be created to parse the 10 output floats 
 - [IMU calibration datasheet](https://www.hillcrestlabs.com/downloads/bno080-sensor-calibration-procedure)
 - [ECBv3 Schematic](https://drive.google.com/open?id=15yXZ_82Z9C4lrHsHq1oSJScUXaHmO8ll)
 
-# Personal Annotations on Datasheets (May or may not help)
-- [IMU Datasheet](https://onedrive.live.com/redir?resid=565318A77EA1EEB1%21119&page=Edit&wd=target%28Summer%202019%20CMU.one%7Cf0398576-ea3c-b94d-ba5c-e3467e0393d7%2FBNO085_IMU_Datasheet%7C952244a5-a7c1-0b49-9665-0d82ca795a4b%2F%29&wdorigin=703)
+# Personal Annotations on Datasheets 
+- I've added some personal notes on the datasheets in the Datasheet_Annotations folder. These may or may not help.
+
