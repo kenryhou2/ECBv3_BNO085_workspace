@@ -16,7 +16,7 @@
 
 /**********CONSTANT VALUES AND FLAGS*********/
 #define USBUART_MODE                         //Debugging does not work with USBUART enabled. Disable for debugging and performance
-//#define DATA_OUTPUT_MODE                     //In order to debug, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
+#define DATA_OUTPUT_MODE                     //In order to debug, comment out DATA_OUTPUT_MODE to be able to print strings. But for procedure use we just want serial output of the float data.
 
 
 #define BUZZER_TIMER_CLK 8000000
